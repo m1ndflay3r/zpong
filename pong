@@ -1,0 +1,275 @@
+#!/usr/bin/env zsh
+
+fpath=(/usr/lib/zsh_libmisc/libmisc.zwc $fpath)
+autoload 2d_arr
+autoload nrandom
+autoload ctext
+autoload ztput
+
+clear
+print "\033[?25l"
+print "Loading..."
+
+pong_score_left=0
+pong_score_right=0
+
+pong_initial_pos="\
+🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
+🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
+🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
+🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
+🟦🪵🟦🟦🟦🟦🟦🟦🐸🟦🟦🟦🟦🟦🟦🍀🟦
+🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
+🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
+🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
+🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦"
+
+pong_init_arena() {
+  print "$pong_initial_pos" | 2d_arr cr pong
+  ball_x_pos="9"
+  ball_y_pos="5"
+  left_pad_x="2"
+  left_pad_y="5"
+  right_pad_x="16"
+  right_pad_y="5"
+}
+
+pong_draw() {
+  pong_buffer=$(2d_arr draw pong)
+  pong_buffer=${pong_buffer//' '/''}
+  print "\033[44m"
+  print "\033[H"
+  print "$pong_buffer"
+  print "\033[0m"
+  print "\033[?25l"
+  print "\033[F"$(ctext cyan)"p1 score"$(ctext white)": "$pong_score_left"           "$(ctext red)"p2 score"$(ctext white)": "$pong_score_right""$(ctext reset)""
+  print ''
+}
+
+pong_rand_dir() {
+  pong_dirs=('ne'
+             'e'
+             'se'
+             'sw'
+             'w'
+             'nw')
+  pong_rand_val=0
+  until ([ "$pong_rand_val" -le 6 ] && [ "$pong_rand_val" -gt 0 ]); do
+    pong_rand_val=$(nrandom)
+    pong_rand_val=${pong_rand_val: :1}
+  done
+  pong_ball_direction=$pong_dirs[$pong_rand_val]
+}
+
+pong_init_arena
+pong_rand_dir
+
+clear
+
+while true; do
+  # step 1 - draw
+  pong_draw
+  # step 2: detect point score
+  [ "$ball_x_pos" = 1 ] && {
+    pong_score_right=$((pong_score_right+1))
+    pong_init_arena
+    pong_rand_dir
+    pong_draw
+  }
+  [ "$ball_x_pos" = 17 ] && {
+    pong_score_left=$((pong_score_left+1))
+    pong_init_arena
+    pong_rand_dir
+    pong_draw
+  }
+  # step 3: paddle movement handler
+  print -n "\r        \r"
+  while IFS= noglob read -r -s -t0.1 -k1 -d'' -u0 pong_mov_char; do
+    case $pong_mov_char in
+      (w) { [ "$(2d_arr query pong "$left_pad_x" "$((left_pad_y-1))")" != "OOB" ] && {
+              2d_arr update pong '🟦' $left_pad_x $left_pad_y
+              left_pad_y=$((left_pad_y-1))
+              2d_arr update pong '🪵' $left_pad_x $left_pad_y
+            }
+          } ;;
+      (s) { [ "$(2d_arr query pong "$left_pad_x" "$((left_pad_y+1))")" != "OOB" ] && {
+              2d_arr update pong '🟦' $left_pad_x $left_pad_y
+              left_pad_y=$((left_pad_y+1))
+              2d_arr update pong '🪵' $left_pad_x $left_pad_y
+            }
+          } ;;
+      (i) { [ "$(2d_arr query pong "$right_pad_x" "$((right_pad_y-1))")" != "OOB" ] && {
+              2d_arr update pong '🟦' $right_pad_x $right_pad_y
+              right_pad_y=$((right_pad_y-1))
+              2d_arr update pong '🍀' $right_pad_x $right_pad_y
+            }
+          } ;;
+      (k) { [ "$(2d_arr query pong "$right_pad_x" "$((right_pad_y+1))")" != "OOB" ] && {
+              2d_arr update pong '🟦' $right_pad_x $right_pad_y
+              right_pad_y=$((right_pad_y+1))
+              2d_arr update pong '🍀' $right_pad_x $right_pad_y
+            }
+          } ;;
+      (y) { $0
+            return $?
+          } ;;
+      (b) { clear
+            print "        "$(print -n "\033[1m")" "$(ctext white)"Final Score"
+            print "         "$(ctext green)"-----------"
+            [ "$pong_score_left" -gt "$pong_score_right" ] && {
+              print "           "$(ctext cyan)"p1"$(ctext white)": "$(ctext yellow)""$pong_score_left""
+              print "           "$(ctext red)"p2"$(ctext white)": "$pong_score_right""
+              print ''
+              print "          "$(ctext yellow)"Winner"$(ctext white)": "$(ctext cyan)"p1"$(ctext reset)""
+              print ''
+              print "\033[?25h"
+              return 0
+            } || [ "$pong_score_right" -gt "$pong_score_left" ] && {
+              print "           "$(ctext red)"p2"$(ctext white)": "$(ctext yellow)""$pong_score_right""
+              print "           "$(ctext cyan)"p1"$(ctext white)": "$pong_score_left""
+              print ""
+              print "          "$(ctext yellow)"Winner"$(ctext white)": "$(ctext red)"p2"$(ctext reset)""
+              print ''
+              print "\033[?25h"
+              return 0
+            } || {
+              print "           "$(ctext cyan)"p1"$(ctext white)": "$pong_score_left""
+              print "           "$(ctext red)"p2"$(ctext white)": "$pong_score_right""
+              print ""
+              print "            "$(ctext blue)"Tie"$(ctext white)"!"$(ctext reset)""
+              print ''
+              print "\033[?25h"
+              return 0
+            }
+          } ;;
+    esac
+  done
+  print -n "\r        \r"
+  # step 4: check ball dir, query next indice to check for collision
+  pong_collision_detection() {
+    case $pong_ball_direction in
+      (ne) ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $((ball_y_pos-1))) ;;
+      (e)  ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $ball_y_pos) ;;
+      (se) ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $((ball_y_pos+1))) ;;
+      (nw) ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $((ball_y_pos-1))) ;;
+      (w)  ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $ball_y_pos) ;;
+      (sw) ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $((ball_y_pos+1)))
+    esac
+    # step 5: if collision detected, set dir switch flag
+    pong_is_paddle=0
+    case $ball_pos_check in
+      (OOB) ball_dir_change=1 ;;
+      (🪵)  { ball_dir_change=1
+             pong_is_paddle=1 } ;;
+      (🍀)  { ball_dir_change=1
+             pong_is_paddle=1 } ;;
+      (*)   ball_dir_change=0 ;;
+    esac
+    # step 6: do dir change if collision detected
+    [ "$ball_dir_change" = 1 ] && {
+      [ "$pong_is_paddle" = 1 ] && {
+        ball_rand_val=$(nrandom)
+        ball_rand_val=${ball_rand_val: :1}
+      }
+      case $pong_ball_direction in
+        (nw) { [ "$pong_is_paddle" = 1 ] && {
+                 [ "$ball_rand_val" -ge 7 ] && {
+                   pong_ball_direction="e"
+                 } || {
+                   pong_ball_direction="ne"
+                 }
+               } || {
+                 pong_ball_direction="sw"
+               }
+             } ;;
+        (w) { ([ -z "$pong_w_last" ] || \
+               [ "$pong_w_last" = "0" ]) && {
+                pong_w_last=1
+                pong_ball_direction="ne"
+              } || {
+                pong_w_last=0
+                pong_ball_direction="se"
+              }
+            } ;;
+        (sw) { [ "$pong_is_paddle" = 1 ] && {
+                 [ "$ball_rand_val" -ge 7 ] && {
+                   pong_ball_direction="e"
+                 } || {
+                   pong_ball_direction="se"
+                 }
+               } || {
+                 pong_ball_direction="nw"
+               }
+             } ;;
+        (ne) { [ "$pong_is_paddle" = 1 ] && {
+                 [ "$ball_rand_val" -ge 7 ] && {
+                   pong_ball_direction="w"
+                 } || {
+                   pong_ball_direction="nw"
+                 }
+               } || {
+                 pong_ball_direction="se"
+               }
+             } ;;
+        (e) { ([ -z "$pong_e_last" ] || \
+               [ "$pong_e_last" = 0 ]) && {
+                pong_e_last=1
+                pong_ball_direction="nw"
+              } || {
+                pong_e_last=0
+                pong_ball_direction="sw"
+              }
+            } ;;
+        (se) { [ "$pong_is_paddle" = 1 ] && {
+                 [ "$ball_rand_val" -ge 7 ] && {
+                   pong_ball_direction="w"
+                 } || {
+                   pong_ball_direction="sw"
+                 }
+               } || {
+                 pong_ball_direction="ne"
+               }
+             } ;;
+      esac
+    }
+  }
+  # we must run the above twice to account for literal edge cases
+  ([ "$ball_x_pos" -eq "3" ] || [ "$ball_x_pos" -eq "15" ]) && {
+    pong_collision_detection
+  }
+  ([ "$ball_y_pos" -eq "1" ] || [ "$ball_y_pos" -eq "9" ]) && {
+    pong_collision_detection
+  }
+  # step 7: update array to display ball movement
+  case $pong_ball_direction in
+    (ne) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+           ball_x_pos=$((ball_x_pos+1))
+           ball_y_pos=$((ball_y_pos-1))
+           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+         } ;;
+    (e) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+           ball_x_pos=$((ball_x_pos+1))
+           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+         } ;;
+    (se) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+           ball_x_pos=$((ball_x_pos+1))
+           ball_y_pos=$((ball_y_pos+1))
+           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+         } ;;
+    (nw) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+           ball_x_pos=$((ball_x_pos-1))
+           ball_y_pos=$((ball_y_pos-1))
+           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+         } ;;
+    (w) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+           ball_x_pos=$((ball_x_pos-1))
+           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+         } ;;
+    (sw) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+           ball_x_pos=$((ball_x_pos-1))
+           ball_y_pos=$((ball_y_pos+1))
+           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+         } ;;
+  esac
+done
+print "\033[?25h"
