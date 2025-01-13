@@ -11,9 +11,13 @@ To run:
 Controls:
 
   p1 up    - w
+
   p1 down  - d
+
   p2 up    - i
+
   p2 down  - k
+
   reset    - y
+
   end game - b
-  
