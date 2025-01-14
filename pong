@@ -244,19 +244,27 @@ while true; do
     pong_collision_detection
     # handle middle bounce with angular direction
     [ "$ball_x_pos" -eq "3" ] && {
-      ball_true_direction=$pong_ball_direction
-      pong_ball_direction="w"
-      pong_collision_detection
-      [ "$pong_ball_direction" = "w" ] && {
-        pong_ball_direction=$ball_true_direction
+      [ "$pong_ball_direction" != "w" ] && {
+        ball_true_direction=$pong_ball_direction
+        pong_ball_direction="w"
+        pong_collision_detection
+        [ "$pong_ball_direction" = "w" ] && {
+          pong_ball_direction=$ball_true_direction
+        }
+      } || {
+        pong_collision_detection
       }
     }
     [ "$ball_x_pos" -eq "15" ] && {
-      ball_true_direction=$pong_ball_direction
-      pong_ball_direction="e"
-      pong_collision_detection
-      [ "$pong_ball_direction" = "e" ] && {
-        pong_ball_direction=$ball_true_direction
+      [ "$pong_ball_direction" != "e" ] && {
+        ball_true_direction=$pong_ball_direction
+        pong_ball_direction="e"
+        pong_collision_detection
+        [ "$pong_ball_direction" = "e" ] && {
+          pong_ball_direction=$ball_true_direction
+        }
+      } || {
+        pong_collision_detection
       }
     }
     unset ball_true_direction
