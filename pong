@@ -150,24 +150,27 @@ while true; do
   print -n "\r        \r"
   # step 4: check ball dir, query next indice to check for collision
   pong_collision_detection() {
-    case $pong_ball_direction in
-      (ne) ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $((ball_y_pos-1))) ;;
-      (e)  ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $ball_y_pos) ;;
-      (se) ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $((ball_y_pos+1))) ;;
-      (nw) ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $((ball_y_pos-1))) ;;
-      (w)  ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $ball_y_pos) ;;
-      (sw) ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $((ball_y_pos+1)))
-    esac
-    # step 5: if collision detected, set dir switch flag
-    pong_is_paddle=0
-    case $ball_pos_check in
-      (OOB) ball_dir_change=1 ;;
-      (🪵)  { ball_dir_change=1
-             pong_is_paddle=1 } ;;
-      (🍀)  { ball_dir_change=1
-             pong_is_paddle=1 } ;;
-      (*)   ball_dir_change=0 ;;
-    esac
+    [ -z "$pong_skip_query" ] && {
+      case $pong_ball_direction in
+        (ne) ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $((ball_y_pos-1))) ;;
+        (e)  ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $ball_y_pos) ;;
+        (se) ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $((ball_y_pos+1))) ;;
+        (nw) ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $((ball_y_pos-1))) ;;
+        (w)  ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $ball_y_pos) ;;
+        (sw) ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $((ball_y_pos+1)))
+      esac
+      # step 5: if collision detected, set dir switch flag
+      pong_is_paddle=0
+      case $ball_pos_check in
+        (OOB) ball_dir_change=1 ;;
+        (🪵)  { ball_dir_change=1
+               pong_is_paddle=1 } ;;
+        (🍀)  { ball_dir_change=1
+               pong_is_paddle=1 } ;;
+        (*)   ball_dir_change=0 ;;
+      esac
+    }
+    unset pong_skip_query
     # step 6: do dir change if collision detected
     [ "$ball_dir_change" = 1 ] && {
       [ "$pong_is_paddle" = 1 ] && {
@@ -246,6 +249,9 @@ while true; do
       pong_collision_detection
       [ "$pong_ball_direction" = "w" ] && {
         pong_ball_direction=$ball_dir_backup
+      } || {
+        pong_ball_direction=$ball_dir_backup
+        pong_skip_query=1 ball_dir_change=1 pong_is_paddle=1 pong_collision_detection
       }
     }
     [ "$ball_x_pos" -eq "15" ] && {
@@ -254,6 +260,9 @@ while true; do
       pong_collision_detection
       [ "$pong_ball_direction" = "e" ] && {
         pong_ball_direction=$ball_dir_backup
+      } || {
+        pong_ball_direction=$ball_dir_backup
+        pong_skip_query=1 ball_dir_change=1 pong_is_paddle=1 pong_collision_detection
       }
     }
   }
