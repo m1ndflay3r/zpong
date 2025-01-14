@@ -247,9 +247,7 @@ while true; do
       ball_dir_backup=$pong_ball_direction
       pong_ball_direction="w"
       pong_collision_detection
-      [ "$pong_ball_direction" = "w" ] && {
-        pong_ball_direction=$ball_dir_backup
-      } || [ "$ball_dir_backup" != "w" ] && {
+      [ "$ball_dir_backup" != "w" ] && {
         pong_ball_direction=$ball_dir_backup
         pong_skip_query=1 ball_dir_change=1 pong_is_paddle=1 pong_collision_detection
       }
@@ -258,9 +256,7 @@ while true; do
       ball_dir_backup=$pong_ball_direction
       pong_ball_direction="e"
       pong_collision_detection
-      [ "$pong_ball_direction" = "e" ] && {
-        pong_ball_direction=$ball_dir_backup
-      } || [ "$ball_dir_backup" != "e" ] && {
+      [ "$ball_dir_backup" != "e" ] && {
         pong_ball_direction=$ball_dir_backup
         pong_skip_query=1 ball_dir_change=1 pong_is_paddle=1 pong_collision_detection
       }
