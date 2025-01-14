@@ -123,6 +123,7 @@ while true; do
               print "          "$(ctext yellow)"Winner"$(ctext white)": "$(ctext cyan)"p1"$(ctext reset)""
               print ''
               print "\033[?25h"
+              2d_arr del pong
               return 0
             } || [ "$pong_score_right" -gt "$pong_score_left" ] && {
               print "           "$(ctext red)"p2"$(ctext white)": "$(ctext yellow)""$pong_score_right""
@@ -131,6 +132,7 @@ while true; do
               print "          "$(ctext yellow)"Winner"$(ctext white)": "$(ctext red)"p2"$(ctext reset)""
               print ''
               print "\033[?25h"
+              2d_arr del pong
               return 0
             } || {
               print "           "$(ctext cyan)"p1"$(ctext white)": "$pong_score_left""
@@ -139,6 +141,7 @@ while true; do
               print "            "$(ctext blue)"Tie"$(ctext white)"!"$(ctext reset)""
               print ''
               print "\033[?25h"
+              2d_arr del pong
               return 0
             }
           } ;;
@@ -236,6 +239,23 @@ while true; do
   # we must run the above twice to account for literal edge cases
   ([ "$ball_x_pos" -eq "3" ] || [ "$ball_x_pos" -eq "15" ]) && {
     pong_collision_detection
+    # handle middle bounce with angular direction
+    [ "$ball_x_pos" -eq "3" ] && {
+      ball_dir_backup=$pong_ball_direction
+      pong_ball_direction="w"
+      pong_collision_detection
+      [ "$pong_ball_direction" = "w" ] && {
+        pong_ball_direction=$ball_dir_backup
+      }
+    }
+    [ "$ball_x_pos" -eq "15" ] && {
+      ball_dir_backup=$pong_ball_direction
+      pong_ball_direction="e"
+      pong_collision_detection
+      [ "$pong_ball_direction" = "e" ] && {
+        pong_ball_direction=$ball_dir_backup
+      }
+    }
   }
   ([ "$ball_y_pos" -eq "1" ] || [ "$ball_y_pos" -eq "9" ]) && {
     pong_collision_detection
@@ -273,3 +293,4 @@ while true; do
   esac
 done
 print "\033[?25h"
+2d_arr del pong
