@@ -150,7 +150,6 @@ while true; do
   print -n "\r        \r"
   # step 4: check ball dir, query next indice to check for collision
   pong_collision_detection() {
-    [ -z "$pong_skip_query" ] && {
       case $pong_ball_direction in
         (ne) ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $((ball_y_pos-1))) ;;
         (e)  ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $ball_y_pos) ;;
@@ -169,13 +168,14 @@ while true; do
                pong_is_paddle=1 } ;;
         (*)   ball_dir_change=0 ;;
       esac
-    }
-    unset pong_skip_query
     # step 6: do dir change if collision detected
     [ "$ball_dir_change" = 1 ] && {
       [ "$pong_is_paddle" = 1 ] && {
         ball_rand_val=$(nrandom)
         ball_rand_val=${ball_rand_val: :1}
+      }
+      ! [ -z "$ball_true_direction" ] && {
+        pong_ball_direction=$ball_true_direction
       }
       case $pong_ball_direction in
         (nw) { [ "$pong_is_paddle" = 1 ] && {
@@ -244,23 +244,22 @@ while true; do
     pong_collision_detection
     # handle middle bounce with angular direction
     [ "$ball_x_pos" -eq "3" ] && {
-      ball_dir_backup=$pong_ball_direction
+      ball_true_direction=$pong_ball_direction
       pong_ball_direction="w"
       pong_collision_detection
-      ([ "$pong_ball_direction" != "w" ] && [ "$ball_dir_backup" != "w" ]) && {
-        pong_ball_direction=$ball_dir_backup
-        pong_skip_query=1 ball_dir_change=1 pong_is_paddle=1 pong_collision_detection
+      [ "$pong_ball_direction" = "w" ] && {
+        pong_ball_direction=$ball_true_direction
       }
     }
     [ "$ball_x_pos" -eq "15" ] && {
-      ball_dir_backup=$pong_ball_direction
+      ball_true_direction=$pong_ball_direction
       pong_ball_direction="e"
       pong_collision_detection
-      ([ "$pong_ball_direction" != "e" ] && [ "$ball_dir_backup" != "e" ]) && {
-        pong_ball_direction=$ball_dir_backup
-        pong_skip_query=1 ball_dir_change=1 pong_is_paddle=1 pong_collision_detection
+      [ "$pong_ball_direction" = "e" ] && {
+        pong_ball_direction=$ball_true_direction
       }
     }
+    unset ball_true_direction
   }
   ([ "$ball_y_pos" -eq "1" ] || [ "$ball_y_pos" -eq "9" ]) && {
     pong_collision_detection
