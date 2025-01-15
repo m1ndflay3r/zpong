@@ -82,6 +82,7 @@ while true; do
     pong_rand_dir
     pong_draw
   }
+  unset ball_true_direction
   # step 3: paddle movement handler
   print -n "\r        \r"
   while IFS= noglob read -r -s -t0.1 -k1 -d'' -u0 pong_mov_char; do
