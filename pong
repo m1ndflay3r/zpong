@@ -83,6 +83,16 @@ while true; do
     pong_draw
   }
   unset ball_true_direction
+  [ $pong_ball_direction = "e" ] && {
+    ball_was_east=1
+  } || {
+    ball_was_east=0
+  }
+  [ $pong_ball_direction = "w" ] && {
+    ball_was_west=1
+  } || {
+    ball_was_west=0
+  }
   # step 3: paddle movement handler
   print -n "\r        \r"
   while IFS= noglob read -r -s -t0.1 -k1 -d'' -u0 pong_mov_char; do
@@ -179,7 +189,7 @@ while true; do
         pong_ball_direction=$ball_true_direction
       }
       case $pong_ball_direction in
-        (nw) { [ "$pong_is_paddle" = 1 ] && {
+        (nw) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_east" != 1 ] && {
                  [ "$ball_rand_val" -ge 7 ] && {
                    pong_ball_direction="e"
                  } || {
@@ -188,6 +198,7 @@ while true; do
                } || {
                  pong_ball_direction="sw"
                }
+               ball_was_east=0
              } ;;
         (w) { ([ -z "$pong_w_last" ] || \
                [ "$pong_w_last" = "0" ]) && {
@@ -198,7 +209,7 @@ while true; do
                 pong_ball_direction="se"
               }
             } ;;
-        (sw) { [ "$pong_is_paddle" = 1 ] && {
+        (sw) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_east" != 1 ] && {
                  [ "$ball_rand_val" -ge 7 ] && {
                    pong_ball_direction="e"
                  } || {
@@ -207,8 +218,9 @@ while true; do
                } || {
                  pong_ball_direction="nw"
                }
+               ball_was_east=0
              } ;;
-        (ne) { [ "$pong_is_paddle" = 1 ] && {
+        (ne) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_west" != 1 ] && {
                  [ "$ball_rand_val" -ge 7 ] && {
                    pong_ball_direction="w"
                  } || {
@@ -217,6 +229,7 @@ while true; do
                } || {
                  pong_ball_direction="se"
                }
+               ball_was_west=0
              } ;;
         (e) { ([ -z "$pong_e_last" ] || \
                [ "$pong_e_last" = 0 ]) && {
@@ -227,7 +240,7 @@ while true; do
                 pong_ball_direction="sw"
               }
             } ;;
-        (se) { [ "$pong_is_paddle" = 1 ] && {
+        (se) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_west" != 1 ] && {
                  [ "$ball_rand_val" -ge 7 ] && {
                    pong_ball_direction="w"
                  } || {
@@ -236,6 +249,7 @@ while true; do
                } || {
                  pong_ball_direction="ne"
                }
+               ball_was_west=0
              } ;;
       esac
     }
@@ -252,8 +266,6 @@ while true; do
         [ "$pong_ball_direction" = "w" ] && {
           pong_ball_direction=$ball_true_direction
         }
-      } || {
-        pong_collision_detection
       }
     }
     [ "$ball_x_pos" -eq "15" ] && {
@@ -264,8 +276,6 @@ while true; do
         [ "$pong_ball_direction" = "e" ] && {
           pong_ball_direction=$ball_true_direction
         }
-      } || {
-        pong_collision_detection
       }
     }
     unset ball_true_direction
