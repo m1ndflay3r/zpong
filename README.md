@@ -1,6 +1,9 @@
 Requires zsh_libmisc for 2d array support (https://github.com/m1ndflay3r/zsh_libmisc)
 
 
+coming soon: player vs comp
+
+
 To run:
 
     git clone https://github.com/m1ndflay3r/zpong
