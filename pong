@@ -5,9 +5,11 @@ autoload 2d_arr
 autoload nrandom
 autoload ctext
 autoload ztput
+autoload chkvldint
 
 clear
 print "\033[?25l"
+stty -echo
 print "Loading..."
 
 pong_score_left=0
@@ -61,14 +63,47 @@ pong_rand_dir() {
   pong_ball_direction=$pong_dirs[$pong_rand_val]
 }
 
+pong_move_cursor() {
+  [ -z "$pcm_x" ] && {
+    pcm_x="$1"
+  }
+  [ -z "$pcm_y" ] && {
+    pcm_y="$2"
+  }
+  ([ -z "$pcm_y" ] || [ -z "$pcm_x" ] || \
+   ! chkvldint "$pcm_y" || ! chkvldint "$pcm_x" || \
+   [ "$pcm_y" -le 0 ] || [ "$pcm_x" -le 0 ]) && {
+     print "Error: pcm received invalid input"
+     return 1
+  }
+  # adjustments needed due to formatting and UTF-8 chars
+  pcm_y=$((pcm_y+1))
+  pcm_x=$((pcm_x*2))
+  pcm_x=$((pcm_x-1))
+  # apply
+  print -Pn "\e[${pcm_y};${pcm_x}H"
+  unset pcm_y
+  unset pcm_x
+}
+
+alias pcm="pong_move_cursor"
+
+pbl_print() {
+  print -Pn "\033[44m"
+  print -n "$@"
+  print -Pn "\033[0m"
+  print -Pn "\033[?25l"
+  pcm 13 13
+}
+
 pong_init_arena
 pong_rand_dir
 
 clear
+# step 1 - draw arena
+pong_draw
 
 while true; do
-  # step 1 - draw
-  pong_draw
   # step 2: detect point score
   [ "$ball_x_pos" = 1 ] && {
     pong_score_right=$((pong_score_right+1))
@@ -101,24 +136,40 @@ while true; do
               2d_arr update pong '🟦' $left_pad_x $left_pad_y
               left_pad_y=$((left_pad_y-1))
               2d_arr update pong '🪵' $left_pad_x $left_pad_y
+              pcm "$left_pad_x" "$((left_pad_y+1))"
+              pbl_print '🟦'
+              pcm "$left_pad_x" "$left_pad_y"
+              pbl_print '🪵'
             }
           } ;;
       (s) { [ "$(2d_arr query pong "$left_pad_x" "$((left_pad_y+1))")" != "OOB" ] && {
               2d_arr update pong '🟦' $left_pad_x $left_pad_y
               left_pad_y=$((left_pad_y+1))
               2d_arr update pong '🪵' $left_pad_x $left_pad_y
+              pcm "$left_pad_x" "$((left_pad_y-1))"
+              pbl_print '🟦'
+              pcm "$left_pad_x" "$left_pad_y"
+              pbl_print '🪵'
             }
           } ;;
       (i) { [ "$(2d_arr query pong "$right_pad_x" "$((right_pad_y-1))")" != "OOB" ] && {
               2d_arr update pong '🟦' $right_pad_x $right_pad_y
               right_pad_y=$((right_pad_y-1))
               2d_arr update pong '🍀' $right_pad_x $right_pad_y
+              pcm "$right_pad_x" "$((right_pad_y+1))"
+              pbl_print '🟦'
+              pcm "$right_pad_x" "$right_pad_y"
+              pbl_print '🍀'
             }
           } ;;
       (k) { [ "$(2d_arr query pong "$right_pad_x" "$((right_pad_y+1))")" != "OOB" ] && {
               2d_arr update pong '🟦' $right_pad_x $right_pad_y
               right_pad_y=$((right_pad_y+1))
               2d_arr update pong '🍀' $right_pad_x $right_pad_y
+              pcm "$right_pad_x" "$((right_pad_y-1))"
+              pbl_print '🟦'
+              pcm "$right_pad_x" "$right_pad_y"
+              pbl_print '🍀'
             }
           } ;;
       (y) { $0
@@ -284,6 +335,8 @@ while true; do
     pong_collision_detection
   }
   # step 7: update array to display ball movement
+  ball_old_x="$ball_x_pos"
+  ball_old_y="$ball_y_pos"
   case $pong_ball_direction in
     (ne) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
            ball_x_pos=$((ball_x_pos+1))
@@ -314,6 +367,11 @@ while true; do
            2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
          } ;;
   esac
+  pcm "$ball_old_x" "$ball_old_y"
+  pbl_print '🟦'
+  pcm "$ball_x_pos" "$ball_y_pos"
+  pbl_print '🐸'
 done
 print "\033[?25h"
 2d_arr del pong
+stty echo
