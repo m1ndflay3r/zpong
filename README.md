@@ -1,4 +1,4 @@
-Requires zsh_libmisc for 2d array support (https://github.com/m1ndflay3r/zsh_libmisc)
+Requires zsh_libmisc (https://github.com/m1ndflay3r/zsh_libmisc)
 
 
 coming soon: player vs comp

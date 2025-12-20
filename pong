@@ -1,11 +1,12 @@
 #!/usr/bin/env zsh
 
 fpath=(/usr/lib/zsh_libmisc/libmisc.zwc $fpath)
-autoload 2d_arr
 autoload nrandom
 autoload ctext
 autoload ztput
 autoload chkvldint
+
+declare -A pong
 
 clear
 print "\033[?25l"
@@ -15,19 +16,30 @@ print "Loading..."
 pong_score_left=0
 pong_score_right=0
 
-pong_initial_pos="\
-🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-🟦🪵🟦🟦🟦🟦🟦🟦🐸🟦🟦🟦🟦🟦🟦🍀🟦
-🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦"
+pong_initial_pos=('🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
+                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
+                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
+                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
+                  '🟦🪵🟦🟦🟦🟦🟦🟦🐸🟦🟦🟦🟦🟦🟦🍀🟦'
+                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
+                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
+                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
+                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
+                 )
 
 pong_init_arena() {
-  print "$pong_initial_pos" | 2d_arr cr pong
+  y_total=0
+  for i in $pong_initial_pos; do
+    ((y_total++))
+    x_total=0
+    while true; do
+      [ -z "$i" ] && break
+      working_indice=${i::1}
+      i=${i:1}
+      ((x_total++))
+      pong[$x_total,$y_total]="$working_indice"
+    done
+  done
   ball_x_pos="9"
   ball_y_pos="5"
   left_pad_x="2"
@@ -36,9 +48,23 @@ pong_init_arena() {
   right_pad_y="5"
 }
 
+print_pong_arr() {
+  y_count=0
+  while true; do
+    ((y_count++))
+    ((y_count>y_total)) && break
+    x_count=0
+    while true; do
+      ((x_count++))
+      ((x_count>x_total)) && break
+      print -n $pong[$x_count,$y_count]
+    done
+    print
+  done
+}
+
 pong_draw() {
-  pong_buffer=$(2d_arr draw pong)
-  pong_buffer=${pong_buffer//' '/''}
+  pong_buffer=$(print_pong_arr)
   print "\033[44m"
   print "\033[H"
   print "$pong_buffer"
@@ -73,7 +99,7 @@ pong_move_cursor() {
   ([ -z "$pcm_y" ] || [ -z "$pcm_x" ] || \
    ! chkvldint "$pcm_y" || ! chkvldint "$pcm_x" || \
    [ "$pcm_y" -le 0 ] || [ "$pcm_x" -le 0 ]) && {
-     print "Error: pcm received invalid input"
+     print "Error: pcm received invalid input ($pcm_x $pcm_y)"
      return 1
   }
   # adjustments needed due to formatting and UTF-8 chars
@@ -132,40 +158,40 @@ while true; do
   print -n "\r        \r"
   while IFS= noglob read -r -s -t0.1 -k1 -d'' -u0 pong_mov_char; do
     case $pong_mov_char in
-      (w) { [ "$(2d_arr query pong "$left_pad_x" "$((left_pad_y-1))")" != "OOB" ] && {
-              2d_arr update pong '🟦' $left_pad_x $left_pad_y
+      (w) { ! [[ -z "$pong[$left_pad_x,$((left_pad_y-1))]" ]] && {
+              pong[$left_pad_x,$left_pad_y]='🟦'
               left_pad_y=$((left_pad_y-1))
-              2d_arr update pong '🪵' $left_pad_x $left_pad_y
+              pong[$left_pad_x,$left_pad_y]='🪵'
               pcm "$left_pad_x" "$((left_pad_y+1))"
               pbl_print '🟦'
               pcm "$left_pad_x" "$left_pad_y"
               pbl_print '🪵'
             }
           } ;;
-      (s) { [ "$(2d_arr query pong "$left_pad_x" "$((left_pad_y+1))")" != "OOB" ] && {
-              2d_arr update pong '🟦' $left_pad_x $left_pad_y
+      (s) { ! [[ -z "$pong[$left_pad_x,$((left_pad_y+1))]" ]] && {
+              pong[$left_pad_x,$left_pad_y]='🟦'
               left_pad_y=$((left_pad_y+1))
-              2d_arr update pong '🪵' $left_pad_x $left_pad_y
+              pong[$left_pad_x,$left_pad_y]='🪵'
               pcm "$left_pad_x" "$((left_pad_y-1))"
               pbl_print '🟦'
               pcm "$left_pad_x" "$left_pad_y"
               pbl_print '🪵'
             }
           } ;;
-      (i) { [ "$(2d_arr query pong "$right_pad_x" "$((right_pad_y-1))")" != "OOB" ] && {
-              2d_arr update pong '🟦' $right_pad_x $right_pad_y
+      (i) { ! [[ -z "$pong[$right_pad_x,$((right_pad_y-1))]" ]] && {
+              pong[$right_pad_x,$right_pad_y]='🟦'
               right_pad_y=$((right_pad_y-1))
-              2d_arr update pong '🍀' $right_pad_x $right_pad_y
+              pong[$right_pad_x,$right_pad_y]='🍀'
               pcm "$right_pad_x" "$((right_pad_y+1))"
               pbl_print '🟦'
               pcm "$right_pad_x" "$right_pad_y"
               pbl_print '🍀'
             }
           } ;;
-      (k) { [ "$(2d_arr query pong "$right_pad_x" "$((right_pad_y+1))")" != "OOB" ] && {
-              2d_arr update pong '🟦' $right_pad_x $right_pad_y
+      (k) { ! [[ -z "$pong[$right_pad_x,$((right_pad_y+1))]" ]] && {
+              pong[$right_pad_x,$right_pad_y]='🟦'
               right_pad_y=$((right_pad_y+1))
-              2d_arr update pong '🍀' $right_pad_x $right_pad_y
+              pong[$right_pad_x,$right_pad_y]='🍀'
               pcm "$right_pad_x" "$((right_pad_y-1))"
               pbl_print '🟦'
               pcm "$right_pad_x" "$right_pad_y"
@@ -185,7 +211,7 @@ while true; do
               print "          "$(ctext yellow)"Winner"$(ctext white)": "$(ctext cyan)"p1"$(ctext reset)""
               print ''
               print "\033[?25h"
-              2d_arr del pong
+              unset pong
               return 0
             } || [ "$pong_score_right" -gt "$pong_score_left" ] && {
               print "           "$(ctext red)"p2"$(ctext white)": "$(ctext yellow)""$pong_score_right""
@@ -194,7 +220,7 @@ while true; do
               print "          "$(ctext yellow)"Winner"$(ctext white)": "$(ctext red)"p2"$(ctext reset)""
               print ''
               print "\033[?25h"
-              2d_arr del pong
+              unset pong
               return 0
             } || {
               print "           "$(ctext cyan)"p1"$(ctext white)": "$pong_score_left""
@@ -203,7 +229,7 @@ while true; do
               print "            "$(ctext blue)"Tie"$(ctext white)"!"$(ctext reset)""
               print ''
               print "\033[?25h"
-              2d_arr del pong
+              unset pong
               return 0
             }
           } ;;
@@ -213,12 +239,12 @@ while true; do
   # step 4: check ball dir, query next indice to check for collision
   pong_collision_detection() {
       case $pong_ball_direction in
-        (ne) ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $((ball_y_pos-1))) ;;
-        (e)  ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $ball_y_pos) ;;
-        (se) ball_pos_check=$(2d_arr query pong $((ball_x_pos+1)) $((ball_y_pos+1))) ;;
-        (nw) ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $((ball_y_pos-1))) ;;
-        (w)  ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $ball_y_pos) ;;
-        (sw) ball_pos_check=$(2d_arr query pong $((ball_x_pos-1)) $((ball_y_pos+1)))
+        (ne) ball_pos_check=${pong[$((ball_x_pos+1)),$((ball_y_pos-1))]:-OOB} ;;
+        (e)  ball_pos_check=${pong[$((ball_x_pos+1)),$ball_y_pos]:-OOB} ;;
+        (se) ball_pos_check=${pong[$((ball_x_pos+1)),$((ball_y_pos+1))]:-OOB} ;;
+        (nw) ball_pos_check=${pong[$((ball_x_pos-1)),$((ball_y_pos-1))]:-OOB} ;;
+        (w)  ball_pos_check=${pong[$((ball_x_pos-1)),$ball_y_pos]:-OOB} ;;
+        (sw) ball_pos_check=${pong[$((ball_x_pos-1)),$((ball_y_pos+1))]:-OOB}
       esac
       # step 5: if collision detected, set dir switch flag
       pong_is_paddle=0
@@ -338,33 +364,33 @@ while true; do
   ball_old_x="$ball_x_pos"
   ball_old_y="$ball_y_pos"
   case $pong_ball_direction in
-    (ne) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+    (ne) { pong[$ball_x_pos,$ball_y_pos]='🟦'
            ball_x_pos=$((ball_x_pos+1))
            ball_y_pos=$((ball_y_pos-1))
-           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+           pong[$ball_x_pos,$ball_y_pos]='🐸'
          } ;;
-    (e) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+    (e)  { pong[$ball_x_pos,$ball_y_pos]='🟦'
            ball_x_pos=$((ball_x_pos+1))
-           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+           pong[$ball_x_pos,$ball_y_pos]='🐸'
          } ;;
-    (se) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+    (se) { pong[$ball_x_pos,$ball_y_pos]='🟦'
            ball_x_pos=$((ball_x_pos+1))
            ball_y_pos=$((ball_y_pos+1))
-           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+           pong[$ball_x_pos,$ball_y_pos]='🐸'
          } ;;
-    (nw) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+    (nw) { pong[$ball_x_pos,$ball_y_pos]='🟦'
            ball_x_pos=$((ball_x_pos-1))
            ball_y_pos=$((ball_y_pos-1))
-           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+           pong[$ball_x_pos,$ball_y_pos]='🐸'
          } ;;
-    (w) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+    (w)  { pong[$ball_x_pos,$ball_y_pos]='🟦'
            ball_x_pos=$((ball_x_pos-1))
-           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+           pong[$ball_x_pos,$ball_y_pos]='🐸'
          } ;;
-    (sw) { 2d_arr upd pong '🟦' $ball_x_pos $ball_y_pos
+    (sw) { pong[$ball_x_pos,$ball_y_pos]='🟦'
            ball_x_pos=$((ball_x_pos-1))
            ball_y_pos=$((ball_y_pos+1))
-           2d_arr upd pong '🐸' $ball_x_pos $ball_y_pos
+           pong[$ball_x_pos,$ball_y_pos]='🐸'
          } ;;
   esac
   pcm "$ball_old_x" "$ball_old_y"
@@ -373,5 +399,5 @@ while true; do
   pbl_print '🐸'
 done
 print "\033[?25h"
-2d_arr del pong
+unset pong
 stty echo
