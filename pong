@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+## env setup
+
 source libfancytext
 
 declare -A pong
@@ -22,6 +24,8 @@ pong_initial_pos=('🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦�
                   '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
                   '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
                  )
+
+## helper functions
 
 pong_init_arena() {
   y_total=0
@@ -117,6 +121,8 @@ pbl_print() {
   print -Pn "\033[?25l"
   pcm 13 13
 }
+
+## main
 
 pong_init_arena
 pong_rand_dir
