@@ -1,10 +1,8 @@
 #!/usr/bin/env zsh
 
 fpath=(/usr/lib/zsh_libmisc/libmisc.zwc $fpath)
-autoload nrandom
 autoload ctext
 autoload ztput
-autoload chkvldint
 
 declare -A pong
 
@@ -83,7 +81,7 @@ pong_rand_dir() {
              'nw')
   pong_rand_val=0
   until ([ "$pong_rand_val" -le 6 ] && [ "$pong_rand_val" -gt 0 ]); do
-    pong_rand_val=$(nrandom)
+    pong_rand_val=$RANDOM
     pong_rand_val=${pong_rand_val: :1}
   done
   pong_ball_direction=$pong_dirs[$pong_rand_val]
@@ -97,7 +95,7 @@ pong_move_cursor() {
     pcm_y="$2"
   }
   ([ -z "$pcm_y" ] || [ -z "$pcm_x" ] || \
-   ! chkvldint "$pcm_y" || ! chkvldint "$pcm_x" || \
+   ! [[ $pcm_y =~ ^[0-9]+$ ]] || ! [[ $pcm_x =~ ^[0-9]+$ ]] || \
    [ "$pcm_y" -le 0 ] || [ "$pcm_x" -le 0 ]) && {
      print "Error: pcm received invalid input ($pcm_x $pcm_y)"
      return 1
@@ -259,7 +257,7 @@ while true; do
     # step 6: do dir change if collision detected
     [ "$ball_dir_change" = 1 ] && {
       [ "$pong_is_paddle" = 1 ] && {
-        ball_rand_val=$(nrandom)
+        ball_rand_val=$RANDOM
         ball_rand_val=${ball_rand_val: :1}
       }
       ! [ -z "$ball_true_direction" ] && {
