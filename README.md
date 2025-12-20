@@ -1,6 +1,3 @@
-Requires zsh_libmisc (https://github.com/m1ndflay3r/zsh_libmisc)
-
-
 coming soon: player vs comp
 
 
