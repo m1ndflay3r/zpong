@@ -42,6 +42,45 @@ pong_init_arena() {
   done
   ball_x_pos="9"
   ball_y_pos="5"
+  # generate random num between 1-9
+  randonum=$(((RANDOM%9)+1))
+  # if 1 2 or 3, shift start pos north
+  ((randonum<=3)) && {
+    pong[$ball_x_pos,$ball_y_pos]='🟦'
+    ((ball_y_pos++))
+    # generate random num between 0-9
+    randonum2=$((RANDOM%10))
+    # if greater than 4, shift again (50%)
+    ((randonum2>4)) && {
+      ((ball_y_pos++))
+    }
+    # generate random num between 0-9
+    randonum3=$((RANDOM%10))
+    # if greater than 7, shift again (20%)
+    ((randonum3>7)) && {
+      ((ball_y_pos++))
+    }
+    pong[$ball_x_pos,$ball_y_pos]='🐸'
+  }
+  # if 4 5 or 6, do nothing
+  # if 7 8 or 9, shift start pos south
+  ((randonum>6)) && {
+    pong[$ball_x_pos,$ball_y_pos]='🟦'
+    ((ball_y_pos--))
+    # generate random num between 0-9
+    randonum2=$((RANDOM%10))
+    # if greater than 4, shift again (50/50)
+    ((randonum2>4)) && {
+      ((ball_y_pos--))
+    }
+    # generate random num between 0-9
+    randonum3=$((RANDOM%10))
+    # if greater than 7, shift again (20%)
+    ((randonum3>7)) && {
+      ((ball_y_pos--))
+    }
+    pong[$ball_x_pos,$ball_y_pos]='🐸'
+  }
   left_pad_x="2"
   left_pad_y="5"
   right_pad_x="16"
@@ -82,10 +121,7 @@ pong_rand_dir() {
              'w'
              'nw')
   pong_rand_val=0
-  until ([ "$pong_rand_val" -le 6 ] && [ "$pong_rand_val" -gt 0 ]); do
-    pong_rand_val=$RANDOM
-    pong_rand_val=${pong_rand_val: :1}
-  done
+  pong_rand_val=$(((RANDOM%6)+1))
   pong_ball_direction=$pong_dirs[$pong_rand_val]
 }
 
@@ -261,8 +297,7 @@ while true; do
     # step 6: do dir change if collision detected
     [ "$ball_dir_change" = 1 ] && {
       [ "$pong_is_paddle" = 1 ] && {
-        ball_rand_val=$RANDOM
-        ball_rand_val=${ball_rand_val: :1}
+        ball_rand_val=$(((RANDOM%9)+1))
       }
       ! [ -z "$ball_true_direction" ] && {
         pong_ball_direction=$ball_true_direction
