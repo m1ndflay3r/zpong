@@ -39,60 +39,26 @@ ztput() {
 }
 
 ctext() {
-  # set text colour
-  [ "$1" = black ] && {
-    ztput 0
-  }
-  [ "$1" = red ] && {
-    ztput 1
-  }
-  [ "$1" = green ] && {
-    ztput 2
-  }
-  [ "$1" = yellow ] && {
-    ztput 3
-  }
-  [ "$1" = blue ] && {
-    ztput 4
-  }
-  [ "$1" = magenta ] && {
-    ztput 5
-  }
-  [ "$1" = cyan ] && {
-    ztput 6
-  }
-  [ "$1" = white ] && {
-    ztput 7
-  }
-  # set background colour
-  [ "$1" = dblack ] && {
-    ztput setab 0
-  }
-  [ "$1" = dred ] && {
-    ztput setab 1
-  }
-  [ "$1" = dgreen ] && {
-    ztput setab 2
-  }
-  [ "$1" = dyellow ] && {
-    ztput setab 3
-  }
-  [ "$1" = dblue ] && {
-    ztput setab 4
-  }
-  [ "$1" = dmagenta ] && {
-    ztput setab 5
-  }
-  [ "$1" = dcyan ] && {
-    ztput setab 6
-  }
-  [ "$1" = dwhite ] && {
-    ztput setab 7
-  }
-  # reset to default colours
-  [ "$1" = reset ] && {
-    ztput reset
-  }
+  # set text colour (d prefix = background)
+  case $1 in
+    (black) ztput 0 ;;
+      (red) ztput 1 ;;
+    (green) ztput 2 ;;
+   (yellow) ztput 3 ;;
+     (blue) ztput 4 ;;
+  (magenta) ztput 5 ;;
+     (cyan) ztput 6 ;;
+    (white) ztput 7 ;;
+   (dblack) ztput setab 0 ;;
+     (dred) ztput setab 1 ;;
+   (dgreen) ztput setab 2 ;;
+  (dyellow) ztput setab 3 ;;
+    (dblue) ztput setab 4 ;;
+ (dmagenta) ztput setab 5 ;;
+    (dcyan) ztput setab 6 ;;
+   (dwhite) ztput setab 7 ;;
+    (reset) ztput reset ;; # reset to default colours
+  esac
   # print with newline
   [ "$2" = std ] && {
     echo "${@:3}"
