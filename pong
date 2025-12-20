@@ -194,7 +194,8 @@ while true; do
   }
   # step 3: paddle movement handler
   print -n "\r        \r"
-  while IFS= noglob read -r -s -t0.1 -k1 -d'' -u0 pong_mov_char; do
+  IFS= noglob read -r -s -t0.1 -k1 -d'' -u0 pong_mov_char
+    [ -z "$pong_mov_char" ] && pong_mov_char='NULL'
     case $pong_mov_char in
       (w) { ! [[ -z "$pong[$left_pad_x,$((left_pad_y-1))]" ]] && {
               pong[$left_pad_x,$left_pad_y]='🟦'
@@ -272,7 +273,7 @@ while true; do
             }
           } ;;
     esac
-  done
+    unset pong_mov_char
   print -n "\r        \r"
   # step 4: check ball dir, query next indice to check for collision
   pong_collision_detection() {
