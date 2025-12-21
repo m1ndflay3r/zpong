@@ -32,16 +32,7 @@ arena_y_mid=$((arena_y-(arena_y/2)))
 paddleone_start_x='2'
 paddletwo_start_x=$((arena_x-1))
 
-pong_initial_pos=('🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
-                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
-                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
-                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
-                  '🟦🪵🟦🟦🟦🟦🟦🟦🐸🟦🟦🟦🟦🟦🟦🍀🟦'
-                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
-                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
-                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
-                  '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
-                 )
+declare -a pong_initial_pos
 
 ## helper functions
 
@@ -107,7 +98,8 @@ pong_grid_search() {
 # populate gameboard, set starting positions
 pong_init_arena() {
   y_total=0
-  for i in $pong_initial_pos; do
+  IFS=$'\n'
+  for i in $(print_base_arena); do
     ((y_total++))
     x_total=0
     while true; do
@@ -118,6 +110,7 @@ pong_init_arena() {
       pong[$x_total,$y_total]="$working_indice"
     done
   done
+  unset IFS
   pong_grid_search '🐸'
   ball_x_pos="$x_search"
   ball_y_pos="$y_search"
