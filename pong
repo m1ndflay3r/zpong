@@ -17,6 +17,7 @@ pong_score_right=0
 arena_tile='🟦'
 l_paddle_tile='🪵'
 r_paddle_tile='🍀'
+frog_tile='🐸'
 
 [ -z "$arena_x" ] && {
   arena_x=17
@@ -25,6 +26,11 @@ r_paddle_tile='🍀'
 [ -z "$arena_y" ] && {
   arena_y=9
 }
+
+arena_x_mid=$((arena_x-(arena_x/2)))
+arena_y_mid=$((arena_y-(arena_y/2)))
+paddleone_start_x='2'
+paddletwo_start_x=$((arena_x-1))
 
 pong_initial_pos=('🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
                   '🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦'
@@ -49,7 +55,19 @@ print_base_arena() {
     while true; do
       ((x_count++))
       ((x_count>arena_x)) && break
-      print -n "$arena_tile"
+      ([[ $x_count = $arena_x_mid ]] && [[ $y_count = $arena_y_mid ]]) && {
+        print -n "$frog_tile"
+      } || {
+        ([[ $x_count = $paddleone_start_x ]] && [[ $y_count = $arena_y_mid ]]) && {
+          print -n "$l_paddle_tile"
+        } || {
+          ([[ $x_count = $paddletwo_start_x ]] && [[ $y_count = $arena_y_mid ]]) && {
+            print -n "$r_paddle_tile"
+          } || {
+            print -n "$arena_tile"
+          }
+        }
+      }
     done
     print
   done
