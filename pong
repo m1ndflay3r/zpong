@@ -55,8 +55,6 @@ print_base_arena() {
   done
 }
 
-print_base_arena && return 0
-
 # search grid for char
 pong_grid_search() {
   local search_char="$1"
