@@ -14,10 +14,21 @@ print "Loading..."
 pong_score_left=0
 pong_score_right=0
 
-arena_tile='🟦'
-l_paddle_tile='🪵'
-r_paddle_tile='🍀'
-frog_tile='🐸'
+[ -z "$arena_tile" ] && {
+  arena_tile='🟦'
+}
+
+[ -z "$ball_tile" ] && {
+  ball_tile='🐸'
+}
+
+[ -z "$l_pad_tile" ] && {
+  l_pad_tile='🪵'
+}
+
+[ -z "$r_pad_tile" ] && {
+  r_pad_tile='🍀'
+}
 
 [ -z "$arena_x" ] && {
   arena_x=17
@@ -46,53 +57,10 @@ print_base_arena() {
     while true; do
       ((x_count++))
       ((x_count>arena_x)) && break
-      ([[ $x_count = $arena_x_mid ]] && [[ $y_count = $arena_y_mid ]]) && {
-        print -n "$frog_tile"
-      } || {
-        ([[ $x_count = $paddleone_start_x ]] && [[ $y_count = $arena_y_mid ]]) && {
-          print -n "$l_paddle_tile"
-        } || {
-          ([[ $x_count = $paddletwo_start_x ]] && [[ $y_count = $arena_y_mid ]]) && {
-            print -n "$r_paddle_tile"
-          } || {
-            print -n "$arena_tile"
-          }
-        }
-      }
+      print -n "$arena_tile"
     done
     print
   done
-}
-
-# search grid for char
-pong_grid_search() {
-  local search_char="$1"
-  y_search=0
-  y_antisearch=$((y_total+1))
-  found_target=0
-  while true; do
-    x_search=0
-    x_antisearch=$((x_total+1))
-    ((y_search++))
-    ((y_antisearch--))
-    ((y_antisearch<y_search)) && break
-    while true; do
-      ((x_search++))
-      ((x_antisearch--))
-      ((x_antisearch<x_search)) && break
-      [[ "$pong[$x_antisearch,$y_antisearch]" = "$search_char" ]] && {
-        x_search=$x_antisearch
-        y_search=$y_antisearch
-        found_target=1
-        break
-      } || [[ "$pong[$x_search,$y_search]" = "$search_char" ]] && {
-        found_target=1
-        break
-      }
-    done
-    [[ "$found_target" = 1 ]] && return 0
-  done
-  return 1
 }
 
 # populate gameboard, set starting positions
@@ -110,10 +78,12 @@ pong_init_arena() {
       pong[$x_total,$y_total]="$working_indice"
     done
   done
+  pong[$arena_x_mid,$arena_y_mid]='🐸'
+  pong[$paddleone_start_x,$arena_y_mid]='🪵'
+  pong[$paddletwo_start_x,$arena_y_mid]='🍀'
   unset IFS
-  pong_grid_search '🐸'
-  ball_x_pos="$x_search"
-  ball_y_pos="$y_search"
+  ball_x_pos="$arena_x_mid"
+  ball_y_pos="$arena_y_mid"
   # generate random num between 1-9
   randonum=$(((RANDOM%9)+1))
   # if 1 2 or 3, shift start pos north
@@ -153,12 +123,10 @@ pong_init_arena() {
     }
     pong[$ball_x_pos,$ball_y_pos]='🐸'
   }
-  pong_grid_search '🪵'
-  left_pad_x="$x_search"
-  left_pad_y="$y_search"
-  pong_grid_search '🍀'
-  right_pad_x="$x_search"
-  right_pad_y="$y_search"
+  left_pad_x="$paddleone_start_x"
+  left_pad_y="$arena_y_mid"
+  right_pad_x="$paddletwo_start_x"
+  right_pad_y="$arena_y_mid"
 }
 
 print_pong_arr() {
