@@ -27,6 +27,38 @@ pong_initial_pos=('🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦�
 
 ## helper functions
 
+# search grid for char
+pong_grid_search() {
+  local search_char="$1"
+  y_search=0
+  y_antisearch=$((y_total+1))
+  found_target=0
+  while true; do
+    x_search=0
+    x_antisearch=$((x_total+1))
+    ((y_search++))
+    ((y_antisearch--))
+    ((y_antisearch<y_search)) && break
+    while true; do
+      ((x_search++))
+      ((x_antisearch--))
+      ((x_antisearch<x_search)) && break
+      [[ "$pong[$x_antisearch,$y_antisearch]" = "$search_char" ]] && {
+        x_search=$x_antisearch
+        y_search=$y_antisearch
+        found_target=1
+        break
+      } || [[ "$pong[$x_search,$y_search]" = "$search_char" ]] && {
+        found_target=1
+        break
+      }
+    done
+    [[ "$found_target" = 1 ]] && return 0
+  done
+  return 1
+}
+
+# populate gameboard, set starting positions
 pong_init_arena() {
   y_total=0
   for i in $pong_initial_pos; do
@@ -40,8 +72,9 @@ pong_init_arena() {
       pong[$x_total,$y_total]="$working_indice"
     done
   done
-  ball_x_pos="9"
-  ball_y_pos="5"
+  pong_grid_search '🐸'
+  ball_x_pos="$x_search"
+  ball_y_pos="$y_search"
   # generate random num between 1-9
   randonum=$(((RANDOM%9)+1))
   # if 1 2 or 3, shift start pos north
@@ -81,10 +114,12 @@ pong_init_arena() {
     }
     pong[$ball_x_pos,$ball_y_pos]='🐸'
   }
-  left_pad_x="2"
-  left_pad_y="5"
-  right_pad_x="16"
-  right_pad_y="5"
+  pong_grid_search '🪵'
+  left_pad_x="$x_search"
+  left_pad_y="$y_search"
+  pong_grid_search '🍀'
+  right_pad_x="$x_search"
+  right_pad_y="$y_search"
 }
 
 print_pong_arr() {
