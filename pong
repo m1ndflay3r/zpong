@@ -78,9 +78,9 @@ pong_init_arena() {
       pong[$x_total,$y_total]="$working_indice"
     done
   done
-  pong[$arena_x_mid,$arena_y_mid]='🐸'
-  pong[$paddleone_start_x,$arena_y_mid]='🪵'
-  pong[$paddletwo_start_x,$arena_y_mid]='🍀'
+  pong[$arena_x_mid,$arena_y_mid]="$ball_tile"
+  pong[$paddleone_start_x,$arena_y_mid]="$l_pad_tile"
+  pong[$paddletwo_start_x,$arena_y_mid]="$r_pad_tile"
   unset IFS
   ball_x_pos="$arena_x_mid"
   ball_y_pos="$arena_y_mid"
@@ -88,7 +88,7 @@ pong_init_arena() {
   randonum=$(((RANDOM%9)+1))
   # if 1 2 or 3, shift start pos north
   ((randonum<=3)) && {
-    pong[$ball_x_pos,$ball_y_pos]='🟦'
+    pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
     ((ball_y_pos++))
     # generate random num between 0-9
     randonum2=$((RANDOM%10))
@@ -102,12 +102,12 @@ pong_init_arena() {
     ((randonum3>7)) && {
       ((ball_y_pos++))
     }
-    pong[$ball_x_pos,$ball_y_pos]='🐸'
+    pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
   }
   # if 4 5 or 6, do nothing
   # if 7 8 or 9, shift start pos south
   ((randonum>6)) && {
-    pong[$ball_x_pos,$ball_y_pos]='🟦'
+    pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
     ((ball_y_pos--))
     # generate random num between 0-9
     randonum2=$((RANDOM%10))
@@ -121,7 +121,7 @@ pong_init_arena() {
     ((randonum3>7)) && {
       ((ball_y_pos--))
     }
-    pong[$ball_x_pos,$ball_y_pos]='🐸'
+    pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
   }
   left_pad_x="$paddleone_start_x"
   left_pad_y="$arena_y_mid"
@@ -239,43 +239,43 @@ while true; do
     [ -z "$pong_mov_char" ] && pong_mov_char='NULL'
     case $pong_mov_char in
       (w) { ! [[ -z "$pong[$left_pad_x,$((left_pad_y-1))]" ]] && {
-              pong[$left_pad_x,$left_pad_y]='🟦'
+              pong[$left_pad_x,$left_pad_y]="$arena_tile"
               left_pad_y=$((left_pad_y-1))
-              pong[$left_pad_x,$left_pad_y]='🪵'
+              pong[$left_pad_x,$left_pad_y]="$l_pad_tile"
               pcm "$left_pad_x" "$((left_pad_y+1))"
-              pbl_print '🟦'
+              pbl_print "$arena_tile"
               pcm "$left_pad_x" "$left_pad_y"
-              pbl_print '🪵'
+              pbl_print "$l_pad_tile"
             }
           } ;;
       (s) { ! [[ -z "$pong[$left_pad_x,$((left_pad_y+1))]" ]] && {
-              pong[$left_pad_x,$left_pad_y]='🟦'
+              pong[$left_pad_x,$left_pad_y]="$arena_tile"
               left_pad_y=$((left_pad_y+1))
-              pong[$left_pad_x,$left_pad_y]='🪵'
+              pong[$left_pad_x,$left_pad_y]="$l_pad_tile"
               pcm "$left_pad_x" "$((left_pad_y-1))"
-              pbl_print '🟦'
+              pbl_print "$arena_tile"
               pcm "$left_pad_x" "$left_pad_y"
-              pbl_print '🪵'
+              pbl_print "$l_pad_tile"
             }
           } ;;
       (i) { ! [[ -z "$pong[$right_pad_x,$((right_pad_y-1))]" ]] && {
-              pong[$right_pad_x,$right_pad_y]='🟦'
+              pong[$right_pad_x,$right_pad_y]="$arena_tile"
               right_pad_y=$((right_pad_y-1))
-              pong[$right_pad_x,$right_pad_y]='🍀'
+              pong[$right_pad_x,$right_pad_y]="$r_pad_tile"
               pcm "$right_pad_x" "$((right_pad_y+1))"
-              pbl_print '🟦'
+              pbl_print "$arena_tile"
               pcm "$right_pad_x" "$right_pad_y"
-              pbl_print '🍀'
+              pbl_print "$r_pad_tile"
             }
           } ;;
       (k) { ! [[ -z "$pong[$right_pad_x,$((right_pad_y+1))]" ]] && {
-              pong[$right_pad_x,$right_pad_y]='🟦'
+              pong[$right_pad_x,$right_pad_y]="$arena_tile"
               right_pad_y=$((right_pad_y+1))
-              pong[$right_pad_x,$right_pad_y]='🍀'
+              pong[$right_pad_x,$right_pad_y]="$r_pad_tile"
               pcm "$right_pad_x" "$((right_pad_y-1))"
-              pbl_print '🟦'
+              pbl_print "$arena_tile"
               pcm "$right_pad_x" "$right_pad_y"
-              pbl_print '🍀'
+              pbl_print "$r_pad_tile"
             }
           } ;;
       (y) { $0
@@ -442,39 +442,39 @@ while true; do
   ball_old_x="$ball_x_pos"
   ball_old_y="$ball_y_pos"
   case $pong_ball_direction in
-    (ne) { pong[$ball_x_pos,$ball_y_pos]='🟦'
+    (ne) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
            ball_x_pos=$((ball_x_pos+1))
            ball_y_pos=$((ball_y_pos-1))
-           pong[$ball_x_pos,$ball_y_pos]='🐸'
+           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (e)  { pong[$ball_x_pos,$ball_y_pos]='🟦'
+    (e)  { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
            ball_x_pos=$((ball_x_pos+1))
-           pong[$ball_x_pos,$ball_y_pos]='🐸'
+           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (se) { pong[$ball_x_pos,$ball_y_pos]='🟦'
+    (se) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
            ball_x_pos=$((ball_x_pos+1))
            ball_y_pos=$((ball_y_pos+1))
-           pong[$ball_x_pos,$ball_y_pos]='🐸'
+           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (nw) { pong[$ball_x_pos,$ball_y_pos]='🟦'
+    (nw) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
            ball_x_pos=$((ball_x_pos-1))
            ball_y_pos=$((ball_y_pos-1))
-           pong[$ball_x_pos,$ball_y_pos]='🐸'
+           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (w)  { pong[$ball_x_pos,$ball_y_pos]='🟦'
+    (w)  { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
            ball_x_pos=$((ball_x_pos-1))
-           pong[$ball_x_pos,$ball_y_pos]='🐸'
+           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (sw) { pong[$ball_x_pos,$ball_y_pos]='🟦'
+    (sw) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
            ball_x_pos=$((ball_x_pos-1))
            ball_y_pos=$((ball_y_pos+1))
-           pong[$ball_x_pos,$ball_y_pos]='🐸'
+           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
   esac
   pcm "$ball_old_x" "$ball_old_y"
-  pbl_print '🟦'
+  pbl_print "$arena_tile"
   pcm "$ball_x_pos" "$ball_y_pos"
-  pbl_print '🐸'
+  pbl_print "$ball_tile"
 done
 print "\033[?25h"
 unset pong
