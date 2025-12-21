@@ -197,7 +197,6 @@ pbl_print() {
   print -n "$@"
   print -Pn "\033[0m"
   print -Pn "\033[?25l"
-  pcm 13 13
 }
 
 ## main
