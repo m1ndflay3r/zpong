@@ -217,7 +217,7 @@ while true; do
     pong_rand_dir
     pong_draw
   }
-  [ "$ball_x_pos" = 17 ] && {
+  [ "$ball_x_pos" = $arena_x ] && {
     pong_score_left=$((pong_score_left+1))
     pong_init_arena
     pong_rand_dir
@@ -412,7 +412,7 @@ while true; do
     }
   }
   # we must run the above twice to account for literal edge cases
-  ([ "$ball_x_pos" -eq "3" ] || [ "$ball_x_pos" -eq "15" ]) && {
+  ([ "$ball_x_pos" -eq "3" ] || [ "$ball_x_pos" -eq "$((arena_x-2))" ]) && {
     pong_collision_detection
     # handle middle bounce with angular direction
     [ "$ball_x_pos" -eq "3" ] && {
@@ -425,7 +425,7 @@ while true; do
         }
       }
     }
-    [ "$ball_x_pos" -eq "15" ] && {
+    [ "$ball_x_pos" -eq "$((arena_x-2))" ] && {
       [ "$pong_ball_direction" != "e" ] && {
         ball_true_direction=$pong_ball_direction
         pong_ball_direction="e"
@@ -437,7 +437,7 @@ while true; do
     }
     unset ball_true_direction
   }
-  ([ "$ball_y_pos" -eq "1" ] || [ "$ball_y_pos" -eq "9" ]) && {
+  ([ "$ball_y_pos" -eq "1" ] || [ "$ball_y_pos" -eq "$arena_y" ]) && {
     pong_collision_detection
   }
   # step 7: update array to display ball movement
