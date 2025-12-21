@@ -329,9 +329,9 @@ while true; do
       pong_is_paddle=0
       case $ball_pos_check in
         (OOB) ball_dir_change=1 ;;
-        (🪵)  { ball_dir_change=1
+        ($l_pad_tile)  { ball_dir_change=1
                pong_is_paddle=1 } ;;
-        (🍀)  { ball_dir_change=1
+        ($r_pad_tile)  { ball_dir_change=1
                pong_is_paddle=1 } ;;
         (*)   ball_dir_change=0 ;;
       esac
