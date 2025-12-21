@@ -39,6 +39,24 @@ pong_initial_pos=('🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦�
 
 ## helper functions
 
+# print arena
+print_base_arena() {
+  local y_count=0
+  while true; do
+    ((y_count++))
+    ((y_count>arena_y)) && break
+    local x_count=0
+    while true; do
+      ((x_count++))
+      ((x_count>arena_x)) && break
+      print -n "$arena_tile"
+    done
+    print
+  done
+}
+
+print_base_arena && return 0
+
 # search grid for char
 pong_grid_search() {
   local search_char="$1"
