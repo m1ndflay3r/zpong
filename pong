@@ -163,9 +163,9 @@ pong_move_cursor() {
      return 1
   }
   # adjustments needed due to formatting and UTF-8 chars
-  pcm_y=$((pcm_y+1))
-  pcm_x=$((pcm_x*2))
-  pcm_x=$((pcm_x-1))
+  ((pcm_y=(pcm_y+1)))
+  ((pcm_x=(pcm_x*2)))
+  ((pcm_x=(pcm_x-1)))
   # apply
   print -Pn "\e[${pcm_y};${pcm_x}H"
   unset pcm_y
