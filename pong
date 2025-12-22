@@ -21,8 +21,9 @@ stty -echo
 print "Loading..."
 
 # define ints for scorekeeping
-int pong_score_left pong_score_right
+int pong_score_left pong_score_right score_space_count
 
+# tile variables - set to defaults if not defined (must be UTF-8)
 [ -z "$arena_tile" ] && {
   arena_tile='🟦'
 }
@@ -39,18 +40,28 @@ int pong_score_left pong_score_right
   r_pad_tile='🍀'
 }
 
+# if arena x length not set, default to 17
 [ -z "$arena_x" ] && {
   int arena_x=17
 }
 
+# if arena y length not set, default to 9
 [ -z "$arena_y" ] && {
   int arena_y=9
 }
 
+# if background colour not set, default to 4 (blue)
 [ -z "$arena_bg" ] || \
 ! [[ $arena_bg =~ ^[0-7]+$ ]] && {
   int arena_bg=4
 }
+
+# calcuate how many spaces to place between display of p1 score and p2 score
+score_space=''
+((score_space_count=(rint(arena_x*0.65))))
+for ((i=1; i<=score_space_count; i++)); do
+  score_space=""$score_space" "
+done
 
 int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x
 ((arena_x_mid=(arena_x-(arena_x/2))))
@@ -134,7 +145,7 @@ pong_draw() {
   print "$pong_buffer"
   print "\033[0m"
   print "\033[?25l"
-  print "\033[F"$(ctext cyan)"p1 score"$(ctext white)": "$pong_score_left"           "$(ctext red)"p2 score"$(ctext white)": "$pong_score_right""$(ctext reset)""
+  print "\033[F"$(ctext cyan)"p1 score"$(ctext white)": "$pong_score_left""$score_space""$(ctext red)"p2 score"$(ctext white)": "$pong_score_right""$(ctext reset)""
   print ''
 }
 
