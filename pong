@@ -9,7 +9,7 @@ zmodload zsh/mathfunc
 source libfancytext
 
 # associative array for game arena (hashmap)
-declare -A pong
+typeset -A pong
 
 # alias integer to int for brevity
 alias int=integer
@@ -40,24 +40,25 @@ int pong_score_left pong_score_right
 }
 
 [ -z "$arena_x" ] && {
-  arena_x=17
+  int arena_x=17
 }
 
 [ -z "$arena_y" ] && {
-  arena_y=9
+  int arena_y=9
 }
 
 [ -z "$arena_bg" ] || \
 ! [[ $arena_bg =~ ^[0-7]+$ ]] && {
-  arena_bg=4
+  int arena_bg=4
 }
 
-arena_x_mid=$((arena_x-(arena_x/2)))
-arena_y_mid=$((arena_y-(arena_y/2)))
-paddleone_start_x='2'
-paddletwo_start_x=$((arena_x-1))
+int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x
+((arena_x_mid=(arena_x-(arena_x/2))))
+((arena_y_mid=(arena_y-(arena_y/2))))
+((paddleone_start_x=2))
+((paddletwo_start_x=(arena_x-1)))
 
-declare -a pong_initial_pos
+typeset -a pong_initial_pos
 
 ## helper functions
 
