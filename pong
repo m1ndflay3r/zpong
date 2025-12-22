@@ -38,6 +38,10 @@ pong_score_right=0
   arena_y=9
 }
 
+[ -z "$arena_bg" ] && {
+  arena_bg=4
+}
+
 arena_x_mid=$((arena_x-(arena_x/2)))
 arena_y_mid=$((arena_y-(arena_y/2)))
 paddleone_start_x='2'
@@ -146,7 +150,7 @@ print_pong_arr() {
 
 pong_draw() {
   pong_buffer=$(print_pong_arr)
-  print "\033[44m"
+  print "\033[4"$arena_bg"m"
   print "\033[H"
   print "$pong_buffer"
   print "\033[0m"
@@ -193,7 +197,7 @@ pong_move_cursor() {
 alias pcm="pong_move_cursor"
 
 pbl_print() {
-  print -Pn "\033[44m"
+  print -Pn "\033[4"$arena_bg"m"
   print -n "$@"
   print -Pn "\033[0m"
   print -Pn "\033[?25l"
