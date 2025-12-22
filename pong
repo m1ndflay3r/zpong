@@ -118,14 +118,9 @@ pong_init_arena() {
 }
 
 print_pong_arr() {
-  y_count=0
-  while true; do
-    ((y_count++))
-    ((y_count>y_total)) && break
+  for ((y_count=1; y_count<=y_total; y_count++)); do
     x_count=0
-    while true; do
-      ((x_count++))
-      ((x_count>x_total)) && break
+    for ((x_count=1; x_count<=x_total; x_count++)); do
       print -n $pong[$x_count,$y_count]
     done
     print
