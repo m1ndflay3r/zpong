@@ -38,7 +38,8 @@ pong_score_right=0
   arena_y=9
 }
 
-[ -z "$arena_bg" ] && {
+[ -z "$arena_bg" ] || \
+! [[ $arena_bg =~ ^[0-7]+$ ]] && {
   arena_bg=4
 }
 
