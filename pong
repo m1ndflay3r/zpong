@@ -181,6 +181,100 @@ pbl_print() {
   print -Pn "\033[?25l"
 }
 
+pong_collision_detection() {
+    case $pong_ball_direction in
+      (ne) ball_pos_check=${pong[$((ball_x_pos+1)),$((ball_y_pos-1))]:-OOB} ;;
+      (e)  ball_pos_check=${pong[$((ball_x_pos+1)),$ball_y_pos]:-OOB} ;;
+      (se) ball_pos_check=${pong[$((ball_x_pos+1)),$((ball_y_pos+1))]:-OOB} ;;
+      (nw) ball_pos_check=${pong[$((ball_x_pos-1)),$((ball_y_pos-1))]:-OOB} ;;
+      (w)  ball_pos_check=${pong[$((ball_x_pos-1)),$ball_y_pos]:-OOB} ;;
+      (sw) ball_pos_check=${pong[$((ball_x_pos-1)),$((ball_y_pos+1))]:-OOB}
+    esac
+    # if collision detected, set dir switch flag
+    pong_is_paddle=0
+    case $ball_pos_check in
+      (OOB) ball_dir_change=1 ;;
+      ($l_pad_tile)  { ball_dir_change=1
+             pong_is_paddle=1 } ;;
+      ($r_pad_tile)  { ball_dir_change=1
+             pong_is_paddle=1 } ;;
+      (*)   ball_dir_change=0 ;;
+    esac
+  # do dir change if collision detected
+  [ "$ball_dir_change" = 1 ] && {
+    [ "$pong_is_paddle" = 1 ] && {
+      ball_rand_val=$(((RANDOM%9)+1))
+    }
+    ! [ -z "$ball_true_direction" ] && {
+      pong_ball_direction=$ball_true_direction
+    }
+    case $pong_ball_direction in
+      (nw) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_east" != 1 ] && {
+               [ "$ball_rand_val" -ge 7 ] && {
+                 pong_ball_direction="e"
+               } || {
+                 pong_ball_direction="ne"
+               }
+             } || {
+               pong_ball_direction="sw"
+             }
+             ball_was_east=0
+           } ;;
+      (w) { ([ -z "$pong_w_last" ] || \
+             [ "$pong_w_last" = "0" ]) && {
+              pong_w_last=1
+              pong_ball_direction="ne"
+            } || {
+              pong_w_last=0
+              pong_ball_direction="se"
+            }
+          } ;;
+      (sw) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_east" != 1 ] && {
+               [ "$ball_rand_val" -ge 7 ] && {
+                 pong_ball_direction="e"
+               } || {
+                 pong_ball_direction="se"
+               }
+             } || {
+               pong_ball_direction="nw"
+             }
+             ball_was_east=0
+           } ;;
+      (ne) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_west" != 1 ] && {
+               [ "$ball_rand_val" -ge 7 ] && {
+                 pong_ball_direction="w"
+               } || {
+                 pong_ball_direction="nw"
+               }
+             } || {
+               pong_ball_direction="se"
+             }
+             ball_was_west=0
+           } ;;
+      (e) { ([ -z "$pong_e_last" ] || \
+             [ "$pong_e_last" = 0 ]) && {
+              pong_e_last=1
+              pong_ball_direction="nw"
+            } || {
+              pong_e_last=0
+              pong_ball_direction="sw"
+            }
+          } ;;
+      (se) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_west" != 1 ] && {
+               [ "$ball_rand_val" -ge 7 ] && {
+                 pong_ball_direction="w"
+               } || {
+                 pong_ball_direction="sw"
+               }
+             } || {
+               pong_ball_direction="ne"
+             }
+             ball_was_west=0
+           } ;;
+    esac
+  }
+}
+
 ## main
 
 pong_init_arena
@@ -296,101 +390,9 @@ while true; do
           } ;;
     esac
     unset pong_mov_char
-  # step 4: check ball dir, query next indice to check for collision
-  pong_collision_detection() {
-      case $pong_ball_direction in
-        (ne) ball_pos_check=${pong[$((ball_x_pos+1)),$((ball_y_pos-1))]:-OOB} ;;
-        (e)  ball_pos_check=${pong[$((ball_x_pos+1)),$ball_y_pos]:-OOB} ;;
-        (se) ball_pos_check=${pong[$((ball_x_pos+1)),$((ball_y_pos+1))]:-OOB} ;;
-        (nw) ball_pos_check=${pong[$((ball_x_pos-1)),$((ball_y_pos-1))]:-OOB} ;;
-        (w)  ball_pos_check=${pong[$((ball_x_pos-1)),$ball_y_pos]:-OOB} ;;
-        (sw) ball_pos_check=${pong[$((ball_x_pos-1)),$((ball_y_pos+1))]:-OOB}
-      esac
-      # step 5: if collision detected, set dir switch flag
-      pong_is_paddle=0
-      case $ball_pos_check in
-        (OOB) ball_dir_change=1 ;;
-        ($l_pad_tile)  { ball_dir_change=1
-               pong_is_paddle=1 } ;;
-        ($r_pad_tile)  { ball_dir_change=1
-               pong_is_paddle=1 } ;;
-        (*)   ball_dir_change=0 ;;
-      esac
-    # step 6: do dir change if collision detected
-    [ "$ball_dir_change" = 1 ] && {
-      [ "$pong_is_paddle" = 1 ] && {
-        ball_rand_val=$(((RANDOM%9)+1))
-      }
-      ! [ -z "$ball_true_direction" ] && {
-        pong_ball_direction=$ball_true_direction
-      }
-      case $pong_ball_direction in
-        (nw) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_east" != 1 ] && {
-                 [ "$ball_rand_val" -ge 7 ] && {
-                   pong_ball_direction="e"
-                 } || {
-                   pong_ball_direction="ne"
-                 }
-               } || {
-                 pong_ball_direction="sw"
-               }
-               ball_was_east=0
-             } ;;
-        (w) { ([ -z "$pong_w_last" ] || \
-               [ "$pong_w_last" = "0" ]) && {
-                pong_w_last=1
-                pong_ball_direction="ne"
-              } || {
-                pong_w_last=0
-                pong_ball_direction="se"
-              }
-            } ;;
-        (sw) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_east" != 1 ] && {
-                 [ "$ball_rand_val" -ge 7 ] && {
-                   pong_ball_direction="e"
-                 } || {
-                   pong_ball_direction="se"
-                 }
-               } || {
-                 pong_ball_direction="nw"
-               }
-               ball_was_east=0
-             } ;;
-        (ne) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_west" != 1 ] && {
-                 [ "$ball_rand_val" -ge 7 ] && {
-                   pong_ball_direction="w"
-                 } || {
-                   pong_ball_direction="nw"
-                 }
-               } || {
-                 pong_ball_direction="se"
-               }
-               ball_was_west=0
-             } ;;
-        (e) { ([ -z "$pong_e_last" ] || \
-               [ "$pong_e_last" = 0 ]) && {
-                pong_e_last=1
-                pong_ball_direction="nw"
-              } || {
-                pong_e_last=0
-                pong_ball_direction="sw"
-              }
-            } ;;
-        (se) { [ "$pong_is_paddle" = 1 ] && [ "$ball_was_west" != 1 ] && {
-                 [ "$ball_rand_val" -ge 7 ] && {
-                   pong_ball_direction="w"
-                 } || {
-                   pong_ball_direction="sw"
-                 }
-               } || {
-                 pong_ball_direction="ne"
-               }
-               ball_was_west=0
-             } ;;
-      esac
-    }
-  }
-  # we must run the above twice to account for literal edge cases
+  # step 4: check ball dir, query next indice to check for collision.
+  # if collision detected, change dir
+  # we must run pong_collision_detection at least twice to account for literal edge cases
   ([ "$ball_x_pos" -eq "3" ] || [ "$ball_x_pos" -eq "$((arena_x-2))" ]) && {
     pong_collision_detection
     # handle middle bounce with angular direction
@@ -419,7 +421,7 @@ while true; do
   ([ "$ball_y_pos" -eq "1" ] || [ "$ball_y_pos" -eq "$arena_y" ]) && {
     pong_collision_detection
   }
-  # step 7: update array to display ball movement
+  # step 5: update array to display ball movement
   ball_old_x="$ball_x_pos"
   ball_old_y="$ball_y_pos"
   case $pong_ball_direction in
