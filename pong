@@ -145,8 +145,7 @@ pong_rand_dir() {
              'sw'
              'w'
              'nw')
-  pong_rand_val=0
-  pong_rand_val=$(((RANDOM%6)+1))
+  ((pong_rand_val=((RANDOM%6)+1)))
   pong_ball_direction=$pong_dirs[$pong_rand_val]
 }
 
