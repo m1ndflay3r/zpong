@@ -58,45 +58,18 @@ int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x
 ((paddleone_start_x=2))
 ((paddletwo_start_x=(arena_x-1)))
 
-typeset -a pong_initial_pos
-
 ## helper functions
-
-# print arena
-print_base_arena() {
-  local y_count=0
-  while true; do
-    ((y_count++))
-    ((y_count>arena_y)) && break
-    local x_count=0
-    while true; do
-      ((x_count++))
-      ((x_count>arena_x)) && break
-      print -n "$arena_tile"
-    done
-    print
-  done
-}
 
 # populate gameboard, set starting positions
 pong_init_arena() {
-  y_total=0
-  IFS=$'\n'
-  for i in $(print_base_arena); do
-    ((y_total++))
-    x_total=0
-    while true; do
-      [ -z "$i" ] && break
-      working_indice=${i::1}
-      i=${i:1}
-      ((x_total++))
-      pong[$x_total,$y_total]="$working_indice"
+  for ((y_total=1; y_total<=arena_y; y_total++)); do
+    for ((x_total=1; x_total<=arena_x; x_total++)); do
+      pong[$x_total,$y_total]="$arena_tile"
     done
   done
   pong[$arena_x_mid,$arena_y_mid]="$ball_tile"
   pong[$paddleone_start_x,$arena_y_mid]="$l_pad_tile"
   pong[$paddletwo_start_x,$arena_y_mid]="$r_pad_tile"
-  unset IFS
   ball_x_pos="$arena_x_mid"
   ball_y_pos="$arena_y_mid"
   # generate random num between 1-9
