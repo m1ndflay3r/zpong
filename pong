@@ -2,17 +2,26 @@
 
 ## env setup
 
+# load mathfunc for rint
+zmodload zsh/mathfunc
+
+# for fancy scoreboard print
 source libfancytext
 
+# associative array for game arena (hashmap)
 declare -A pong
 
+# alias integer to int for brevity
+alias int=integer
+
+# clear screen, hide cursor, set echo chars to false
 clear
 print "\033[?25l"
 stty -echo
 print "Loading..."
 
-pong_score_left=0
-pong_score_right=0
+# define ints for scorekeeping
+int pong_score_left pong_score_right
 
 [ -z "$arena_tile" ] && {
   arena_tile='🟦'
