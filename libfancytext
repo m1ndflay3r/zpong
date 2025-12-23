@@ -72,14 +72,6 @@ ctext() {
 (nnl,bold,nres) ztput bold && echo -n "${@:3}" ;; # print bold, without newline, no reset afterwards
  (std,dim,nres) ztput dim && echo "${@:3}" ;; # print dim, with newline, no reset afterwards
  (nnl,dim,nres) ztput dim && echo -n "${@:3}" ;; # print dim, without newline, no reset afterwards
-       (chkmrk) ztput bold && echo -e "\xE2\x9C\x94" && ztput reset ;; # print checkmark
-         (xmrk) ztput bold && echo "X" && ztput reset ;; # x marks the spot
-         (grin) ztput bold && echo "😀" && ztput reset ;; # grin
-        (smile) ztput bold && echo "☺" && ztput reset ;; # smile
-         (glss) ztput bold && echo "😎" && ztput reset ;; # sunglasses
-        (frown) ztput bold && echo "☹" && ztput reset ;; # frown
-       (horrif) ztput bold && echo "😱" && ztput reset ;; # horrified
-         (dead) ztput bold && echo "☠" && ztput reset ;; # dead
   esac
   # return 0
   return 0
