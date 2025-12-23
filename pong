@@ -193,24 +193,29 @@ pbl_print() {
 }
 
 pong_collision_detection() {
+    local x_test
+    local y_test
+    local ball_dir_change=0
+    local pong_is_paddle=0
     case $pong_ball_direction in
-      (ne) ball_pos_check=${pong[$((ball_x_pos+1)),$((ball_y_pos-1))]:-OOB} ;;
-      (e)  ball_pos_check=${pong[$((ball_x_pos+1)),$ball_y_pos]:-OOB} ;;
-      (se) ball_pos_check=${pong[$((ball_x_pos+1)),$((ball_y_pos+1))]:-OOB} ;;
-      (nw) ball_pos_check=${pong[$((ball_x_pos-1)),$((ball_y_pos-1))]:-OOB} ;;
-      (w)  ball_pos_check=${pong[$((ball_x_pos-1)),$ball_y_pos]:-OOB} ;;
-      (sw) ball_pos_check=${pong[$((ball_x_pos-1)),$((ball_y_pos+1))]:-OOB}
+      (ne) ((x_test=(ball_x_pos+1))) && ((y_test=(ball_y_pos-1))) ;;
+      (e)  ((x_test=(ball_x_pos+1))) && ((y_test=ball_y_pos)) ;;
+      (se) ((x_test=(ball_x_pos+1))) && ((y_test=(ball_y_pos+1))) ;;
+      (nw) ((x_test=(ball_x_pos-1))) && ((y_test=(ball_y_pos-1))) ;;
+      (w)  ((x_test=(ball_x_pos-1))) && ((y_test=ball_y_pos)) ;;
+      (sw) ((x_test=(ball_x_pos-1))) && ((y_test=(ball_y_pos+1))) ;;
     esac
     # if collision detected, set dir switch flag
-    pong_is_paddle=0
-    case $ball_pos_check in
-      (OOB) ball_dir_change=1 ;;
-      ($l_pad_tile)  { ball_dir_change=1
-             pong_is_paddle=1 } ;;
-      ($r_pad_tile)  { ball_dir_change=1
-             pong_is_paddle=1 } ;;
-      (*)   ball_dir_change=0 ;;
-    esac
+    ((x_test<=0)) || ((x_test>arena_x)) || \
+    ((y_test<=0)) || ((y_test>arena_y)) && {
+      ((ball_dir_change++))
+    }
+    # if collision is paddle, set dir switch + paddle flags
+    ((((x_test==left_pad_x)) && ((y_test==left_pad_y))) || \
+    (((x_test==right_pad_x)) && ((y_test==right_pad_y))))  && {
+      ((ball_dir_change++))
+      ((pong_is_paddle++))
+    }
   # do dir change if collision detected
   [ "$ball_dir_change" = 1 ] && {
     [ "$pong_is_paddle" = 1 ] && {
