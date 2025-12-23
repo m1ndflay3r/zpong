@@ -169,7 +169,7 @@ pong_move_cursor() {
   }
   ([ -z "$pcm_y" ] || [ -z "$pcm_x" ] || \
    ! [[ $pcm_y =~ ^[0-9]+$ ]] || ! [[ $pcm_x =~ ^[0-9]+$ ]] || \
-   [ "$pcm_y" -le 0 ] || [ "$pcm_x" -le 0 ]) && {
+   ((pcm_y<=0)) || ((pcm_x<=0))) && {
      print "Error: pcm received invalid input ($pcm_x $pcm_y)"
      return 1
   }
