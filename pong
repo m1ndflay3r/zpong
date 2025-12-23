@@ -237,8 +237,8 @@ pong_collision_detection() {
       (sw) ((x_test=(ball_x_pos-1))) && ((y_test=(ball_y_pos+1))) ;;
     esac
     # if collision detected, set dir switch flag
-    ((x_test<=0)) || ((x_test>arena_x)) || \
-    ((y_test<=0)) || ((y_test>arena_y)) && {
+    (((x_test<=0)) || ((x_test>arena_x)) || \
+    ((y_test<=0)) || ((y_test>arena_y))) && {
       ((ball_dir_change++))
     }
     # if collision is paddle, set dir switch + paddle flags
