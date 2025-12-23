@@ -248,9 +248,9 @@ pong_collision_detection() {
       ((pong_is_paddle++))
     }
   # do dir change if collision detected
-  [ "$ball_dir_change" = 1 ] && {
-    [ "$pong_is_paddle" = 1 ] && {
-      ball_rand_val=$(((RANDOM%9)+1))
+  ((ball_dir_change==1)) && {
+    ((pong_is_paddle==1)) && {
+      ((ball_rand_val=((RANDOM%9)+1)))
     }
     ! [ -z "$ball_true_direction" ] && {
       pong_ball_direction=$ball_true_direction
