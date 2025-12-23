@@ -187,6 +187,7 @@ pong_rand_dir() {
   pong_ball_direction=$pong_dirs[$pong_rand_val]
 }
 
+# move cursor to specified x y vals
 pong_move_cursor() {
   [ -z "$pcm_x" ] && {
     pcm_x="$1"
@@ -210,8 +211,10 @@ pong_move_cursor() {
   unset pcm_x
 }
 
+# alias pong_move_cursor to pcm for brevity
 alias pcm="pong_move_cursor"
 
+# formatted print - set arena colour, print, reset ansi, and rehide cursor
 pbl_print() {
   print -Pn "\033[4"$arena_bg"m"
   print -n "$@"
@@ -219,6 +222,7 @@ pbl_print() {
   print -Pn "\033[?25l"
 }
 
+# collision detection logic
 pong_collision_detection() {
     local x_test
     local y_test
@@ -320,13 +324,15 @@ pong_collision_detection() {
 
 ## main
 
+# step 1 (pre-loop): init tasks, clear, and draw grid
 pong_init_arena
 pong_rand_dir
 
 clear
-# step 1 - draw arena
+
 pong_draw
 
+# game loop
 while true; do
   # step 2: detect point score
   [ "$ball_x_pos" = 1 ] && {
@@ -342,6 +348,7 @@ while true; do
     pong_draw
   }
   unset ball_true_direction
+  # ensure we dont bounce east or west too often
   [ $pong_ball_direction = "e" ] && {
     ball_was_east=1
   } || {
