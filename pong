@@ -8,7 +8,7 @@ zmodload zsh/mathfunc
 # for fancy scoreboard print
 source libfancytext
 
-# associative array for game arena (hashmap)
+# associative array for 1st arena print (hashmap)
 typeset -A pong
 
 # alias integer to int for brevity
@@ -365,9 +365,7 @@ while true; do
     [ -z "$pong_mov_char" ] && pong_mov_char='NULL'
     case $pong_mov_char in
       (w) { (((left_pad_y-1)>0)) && {
-              pong[$left_pad_x,$left_pad_y]="$arena_tile"
               ((left_pad_y--))
-              pong[$left_pad_x,$left_pad_y]="$l_pad_tile"
               pcm "$left_pad_x" "$((left_pad_y+1))"
               pbl_print "$arena_tile"
               pcm "$left_pad_x" "$left_pad_y"
@@ -375,9 +373,7 @@ while true; do
             }
           } ;;
       (s) { (((left_pad_y+1)<=arena_y)) && {
-              pong[$left_pad_x,$left_pad_y]="$arena_tile"
               ((left_pad_y++))
-              pong[$left_pad_x,$left_pad_y]="$l_pad_tile"
               pcm "$left_pad_x" "$((left_pad_y-1))"
               pbl_print "$arena_tile"
               pcm "$left_pad_x" "$left_pad_y"
@@ -385,9 +381,7 @@ while true; do
             }
           } ;;
       (i) { (((right_pad_y-1)>0)) && {
-              pong[$right_pad_x,$right_pad_y]="$arena_tile"
               ((right_pad_y--))
-              pong[$right_pad_x,$right_pad_y]="$r_pad_tile"
               pcm "$right_pad_x" "$((right_pad_y+1))"
               pbl_print "$arena_tile"
               pcm "$right_pad_x" "$right_pad_y"
@@ -395,9 +389,7 @@ while true; do
             }
           } ;;
       (k) { (((right_pad_y+1)<=arena_y)) && {
-              pong[$right_pad_x,$right_pad_y]="$arena_tile"
               ((right_pad_y++))
-              pong[$right_pad_x,$right_pad_y]="$r_pad_tile"
               pcm "$right_pad_x" "$((right_pad_y-1))"
               pbl_print "$arena_tile"
               pcm "$right_pad_x" "$right_pad_y"
@@ -477,37 +469,31 @@ while true; do
   (((ball_y_pos==1)) || ((ball_y_pos==arena_y))) && {
     pong_collision_detection
   }
-  # step 5: update array to display ball movement
+  # step 5: update ball position
   ball_old_x="$ball_x_pos"
   ball_old_y="$ball_y_pos"
   case $pong_ball_direction in
-    (ne) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
+    (ne) {
            ((ball_x_pos++))
            ((ball_y_pos--))
-           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (e)  { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
+    (e)  {
            ((ball_x_pos++))
-           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (se) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
+    (se) {
            ((ball_x_pos++))
            ((ball_y_pos++))
-           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (nw) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
+    (nw) {
            ((ball_x_pos--))
            ((ball_y_pos--))
-           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (w)  { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
+    (w)  {
            ((ball_x_pos--))
-           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
-    (sw) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
+    (sw) {
            ((ball_x_pos--))
            ((ball_y_pos++))
-           pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
   esac
   pcm "$ball_old_x" "$ball_old_y"
