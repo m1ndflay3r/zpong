@@ -63,7 +63,7 @@ for ((i=1; i<=score_space_count; i++)); do
   score_space=""$score_space" "
 done
 
-int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x
+int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x ball_x_pos ball_y_pos left_pad_x left_pad_y right_pad_x right_pad_y
 ((arena_x_mid=(arena_x-(arena_x/2))))
 ((arena_y_mid=(arena_y-(arena_y/2))))
 ((paddleone_start_x=2))
@@ -81,8 +81,8 @@ pong_init_arena() {
   pong[$arena_x_mid,$arena_y_mid]="$ball_tile"
   pong[$paddleone_start_x,$arena_y_mid]="$l_pad_tile"
   pong[$paddletwo_start_x,$arena_y_mid]="$r_pad_tile"
-  ball_x_pos="$arena_x_mid"
-  ball_y_pos="$arena_y_mid"
+  ((ball_x_pos=arena_x_mid))
+  ((ball_y_pos=arena_y_mid))
   # generate random num between 1-9
   randonum=$(((RANDOM%9)+1))
   # if 1 2 or 3, shift start pos north
@@ -122,10 +122,10 @@ pong_init_arena() {
     }
     pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
   }
-  left_pad_x="$paddleone_start_x"
-  left_pad_y="$arena_y_mid"
-  right_pad_x="$paddletwo_start_x"
-  right_pad_y="$arena_y_mid"
+  ((left_pad_x=paddleone_start_x))
+  ((left_pad_y=arena_y_mid))
+  ((right_pad_x=paddletwo_start_x))
+  ((right_pad_y=arena_y_mid))
 }
 
 print_pong_arr() {
