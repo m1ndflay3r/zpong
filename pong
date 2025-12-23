@@ -364,7 +364,7 @@ while true; do
     # if no char in buffer, set buffer to NULL (case doesnt like empty vars)
     [ -z "$pong_mov_char" ] && pong_mov_char='NULL'
     case $pong_mov_char in
-      (w) { ! [[ -z "$pong[$left_pad_x,$((left_pad_y-1))]" ]] && {
+      (w) { (((left_pad_y-1)>0)) && {
               pong[$left_pad_x,$left_pad_y]="$arena_tile"
               ((left_pad_y--))
               pong[$left_pad_x,$left_pad_y]="$l_pad_tile"
@@ -374,7 +374,7 @@ while true; do
               pbl_print "$l_pad_tile"
             }
           } ;;
-      (s) { ! [[ -z "$pong[$left_pad_x,$((left_pad_y+1))]" ]] && {
+      (s) { (((left_pad_y+1)<=arena_y)) && {
               pong[$left_pad_x,$left_pad_y]="$arena_tile"
               ((left_pad_y++))
               pong[$left_pad_x,$left_pad_y]="$l_pad_tile"
@@ -384,7 +384,7 @@ while true; do
               pbl_print "$l_pad_tile"
             }
           } ;;
-      (i) { ! [[ -z "$pong[$right_pad_x,$((right_pad_y-1))]" ]] && {
+      (i) { (((right_pad_y-1)>0)) && {
               pong[$right_pad_x,$right_pad_y]="$arena_tile"
               ((right_pad_y--))
               pong[$right_pad_x,$right_pad_y]="$r_pad_tile"
@@ -394,7 +394,7 @@ while true; do
               pbl_print "$r_pad_tile"
             }
           } ;;
-      (k) { ! [[ -z "$pong[$right_pad_x,$((right_pad_y+1))]" ]] && {
+      (k) { (((right_pad_y+1)<=arena_y)) && {
               pong[$right_pad_x,$right_pad_y]="$arena_tile"
               ((right_pad_y++))
               pong[$right_pad_x,$right_pad_y]="$r_pad_tile"
