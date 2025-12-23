@@ -40,13 +40,13 @@ int pong_score_left pong_score_right score_space_count
   r_pad_tile='🍀'
 }
 
-# if arena x length not set, default to 17
-[ -z "$arena_x" ] && {
+# if arena x length not set, invalid type, or <17, default to 17
+([ -z "$arena_x" ] || ! [[ $arena_x =~ ^[0-9]+$ ]] || ((arena_x<17))) && {
   int arena_x=17
 }
 
-# if arena y length not set, default to 9
-[ -z "$arena_y" ] && {
+# if arena y length not set, invalid type, or <9, default to 9
+([ -z "$arena_y" ] || ! [[ $arena_y =~ ^[0-9]+$ ]] || ((arena_y<9))) && {
   int arena_y=9
 }
 
@@ -64,7 +64,7 @@ for ((i=1; i<=score_space_count; i++)); do
 done
 
 # define other needed ints
-int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x ball_x_pos ball_y_pos left_pad_x left_pad_y right_pad_x right_pad_y
+int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x ball_x_pos ball_y_pos left_pad_x left_pad_y right_pad_x right_pad_y ball_was_east ball_was_west
 
 # calculate arena mid + paddle start pos
 ((arena_x_mid=(arena_x-(arena_x/2))))
@@ -335,14 +335,14 @@ pong_draw
 # game loop
 while true; do
   # step 2: detect point score
-  [ "$ball_x_pos" = 1 ] && {
-    pong_score_right=$((pong_score_right+1))
+  ((ball_x_pos==1)) && {
+    ((pong_score_right++))
     pong_init_arena
     pong_rand_dir
     pong_draw
   }
-  [ "$ball_x_pos" = $arena_x ] && {
-    pong_score_left=$((pong_score_left+1))
+  ((ball_x_pos==arena_x)) && {
+    ((pong_score_left++))
     pong_init_arena
     pong_rand_dir
     pong_draw
@@ -350,22 +350,23 @@ while true; do
   unset ball_true_direction
   # ensure we dont bounce east or west too often
   [ $pong_ball_direction = "e" ] && {
-    ball_was_east=1
+    ((ball_was_east=1))
   } || {
-    ball_was_east=0
+    ((ball_was_east=0))
   }
   [ $pong_ball_direction = "w" ] && {
-    ball_was_west=1
+    ((ball_was_west=1))
   } || {
-    ball_was_west=0
+    ((ball_was_west=0))
   }
   # step 3: paddle movement handler
   IFS= noglob read -r -s -t0.1 -k1 -d'' -u0 pong_mov_char
+    # if no char in buffer, set buffer to NULL (case doesnt like empty vars)
     [ -z "$pong_mov_char" ] && pong_mov_char='NULL'
     case $pong_mov_char in
       (w) { ! [[ -z "$pong[$left_pad_x,$((left_pad_y-1))]" ]] && {
               pong[$left_pad_x,$left_pad_y]="$arena_tile"
-              left_pad_y=$((left_pad_y-1))
+              ((left_pad_y--))
               pong[$left_pad_x,$left_pad_y]="$l_pad_tile"
               pcm "$left_pad_x" "$((left_pad_y+1))"
               pbl_print "$arena_tile"
@@ -375,7 +376,7 @@ while true; do
           } ;;
       (s) { ! [[ -z "$pong[$left_pad_x,$((left_pad_y+1))]" ]] && {
               pong[$left_pad_x,$left_pad_y]="$arena_tile"
-              left_pad_y=$((left_pad_y+1))
+              ((left_pad_y++))
               pong[$left_pad_x,$left_pad_y]="$l_pad_tile"
               pcm "$left_pad_x" "$((left_pad_y-1))"
               pbl_print "$arena_tile"
@@ -385,7 +386,7 @@ while true; do
           } ;;
       (i) { ! [[ -z "$pong[$right_pad_x,$((right_pad_y-1))]" ]] && {
               pong[$right_pad_x,$right_pad_y]="$arena_tile"
-              right_pad_y=$((right_pad_y-1))
+              ((right_pad_y--))
               pong[$right_pad_x,$right_pad_y]="$r_pad_tile"
               pcm "$right_pad_x" "$((right_pad_y+1))"
               pbl_print "$arena_tile"
@@ -395,7 +396,7 @@ while true; do
           } ;;
       (k) { ! [[ -z "$pong[$right_pad_x,$((right_pad_y+1))]" ]] && {
               pong[$right_pad_x,$right_pad_y]="$arena_tile"
-              right_pad_y=$((right_pad_y+1))
+              ((right_pad_y++))
               pong[$right_pad_x,$right_pad_y]="$r_pad_tile"
               pcm "$right_pad_x" "$((right_pad_y-1))"
               pbl_print "$arena_tile"
