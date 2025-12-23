@@ -63,7 +63,10 @@ for ((i=1; i<=score_space_count; i++)); do
   score_space=""$score_space" "
 done
 
+# define other needed ints
 int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x ball_x_pos ball_y_pos left_pad_x left_pad_y right_pad_x right_pad_y
+
+# calculate arena mid + paddle start pos
 ((arena_x_mid=(arena_x-(arena_x/2))))
 ((arena_y_mid=(arena_y-(arena_y/2))))
 ((paddleone_start_x=2))
@@ -73,6 +76,9 @@ int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x ball_x_pos ball_
 
 # populate gameboard, set starting positions
 pong_init_arena() {
+  local randonum
+  local randonum2
+  local randonum3
   for ((y_total=1; y_total<=arena_y; y_total++)); do
     for ((x_total=1; x_total<=arena_x; x_total++)); do
       pong[$x_total,$y_total]="$arena_tile"
@@ -84,19 +90,19 @@ pong_init_arena() {
   ((ball_x_pos=arena_x_mid))
   ((ball_y_pos=arena_y_mid))
   # generate random num between 1-9
-  randonum=$(((RANDOM%9)+1))
+  ((randonum=((RANDOM%9)+1)))
   # if 1 2 or 3, shift start pos north
   ((randonum<=3)) && {
     pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
     ((ball_y_pos++))
     # generate random num between 0-9
-    randonum2=$((RANDOM%10))
+    ((randonum2=(RANDOM%10)))
     # if greater than 4, shift again (50%)
     ((randonum2>4)) && {
       ((ball_y_pos++))
     }
     # generate random num between 0-9
-    randonum3=$((RANDOM%10))
+    ((randonum3=(RANDOM%10)))
     # if greater than 7, shift again (20%)
     ((randonum3>7)) && {
       ((ball_y_pos++))
@@ -109,13 +115,13 @@ pong_init_arena() {
     pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
     ((ball_y_pos--))
     # generate random num between 0-9
-    randonum2=$((RANDOM%10))
+    ((randonum2=(RANDOM%10)))
     # if greater than 4, shift again (50/50)
     ((randonum2>4)) && {
       ((ball_y_pos--))
     }
     # generate random num between 0-9
-    randonum3=$((RANDOM%10))
+    ((randonum3=(RANDOM%10)))
     # if greater than 7, shift again (20%)
     ((randonum3>7)) && {
       ((ball_y_pos--))
@@ -130,7 +136,6 @@ pong_init_arena() {
 
 print_pong_arr() {
   for ((y_count=1; y_count<=y_total; y_count++)); do
-    x_count=0
     for ((x_count=1; x_count<=x_total; x_count++)); do
       print -n $pong[$x_count,$y_count]
     done
