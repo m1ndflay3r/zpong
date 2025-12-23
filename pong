@@ -444,10 +444,10 @@ while true; do
   # step 4: check ball dir, query next indice to check for collision.
   # if collision detected, change dir
   # we must run pong_collision_detection at least twice to account for literal edge cases
-  ([ "$ball_x_pos" -eq "3" ] || [ "$ball_x_pos" -eq "$((arena_x-2))" ]) && {
+  (((ball_x_pos==3)) || ((ball_x_pos==(arena_x-2)))) && {
     pong_collision_detection
     # handle middle bounce with angular direction
-    [ "$ball_x_pos" -eq "3" ] && {
+    ((ball_x_pos==3)) && {
       [ "$pong_ball_direction" != "w" ] && {
         ball_true_direction=$pong_ball_direction
         pong_ball_direction="w"
@@ -457,7 +457,7 @@ while true; do
         }
       }
     }
-    [ "$ball_x_pos" -eq "$((arena_x-2))" ] && {
+    ((ball_x_pos==(arena_x-2))) && {
       [ "$pong_ball_direction" != "e" ] && {
         ball_true_direction=$pong_ball_direction
         pong_ball_direction="e"
@@ -469,7 +469,7 @@ while true; do
     }
     unset ball_true_direction
   }
-  ([ "$ball_y_pos" -eq "1" ] || [ "$ball_y_pos" -eq "$arena_y" ]) && {
+  (((ball_y_pos==1)) || ((ball_y_pos==arena_y))) && {
     pong_collision_detection
   }
   # step 5: update array to display ball movement
@@ -477,31 +477,31 @@ while true; do
   ball_old_y="$ball_y_pos"
   case $pong_ball_direction in
     (ne) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
-           ball_x_pos=$((ball_x_pos+1))
-           ball_y_pos=$((ball_y_pos-1))
+           ((ball_x_pos++))
+           ((ball_y_pos--))
            pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
     (e)  { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
-           ball_x_pos=$((ball_x_pos+1))
+           ((ball_x_pos++))
            pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
     (se) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
-           ball_x_pos=$((ball_x_pos+1))
-           ball_y_pos=$((ball_y_pos+1))
+           ((ball_x_pos++))
+           ((ball_y_pos++))
            pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
     (nw) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
-           ball_x_pos=$((ball_x_pos-1))
-           ball_y_pos=$((ball_y_pos-1))
+           ((ball_x_pos--))
+           ((ball_y_pos--))
            pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
     (w)  { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
-           ball_x_pos=$((ball_x_pos-1))
+           ((ball_x_pos--))
            pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
     (sw) { pong[$ball_x_pos,$ball_y_pos]="$arena_tile"
-           ball_x_pos=$((ball_x_pos-1))
-           ball_y_pos=$((ball_y_pos+1))
+           ((ball_x_pos--))
+           ((ball_y_pos++))
            pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
          } ;;
   esac
