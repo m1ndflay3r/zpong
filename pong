@@ -446,7 +446,11 @@ while true; do
   # we must run pong_collision_detection at least twice to account for literal edge cases
   (((ball_x_pos==3)) || ((ball_x_pos==(arena_x-2)))) && {
     pong_collision_detection
-    # handle middle bounce with angular direction
+    # --- handle middle bounce with angular direction ---
+    # ball_true_direction stores current dir, dir
+    # is switched to e or w for collision check,
+    # and current dir is restored if pong_collision_detection
+    # didnt attempt dir change
     ((ball_x_pos==3)) && {
       [ "$pong_ball_direction" != "w" ] && {
         ball_true_direction=$pong_ball_direction
@@ -469,6 +473,7 @@ while true; do
     }
     unset ball_true_direction
   }
+  # run collision check if ball is at max_y||min_y
   (((ball_y_pos==1)) || ((ball_y_pos==arena_y))) && {
     pong_collision_detection
   }
