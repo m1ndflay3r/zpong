@@ -76,19 +76,29 @@ int arena_x_mid arena_y_mid paddletwo_start_x paddleone_start_x ball_x_pos ball_
 
 # populate gameboard, set starting positions
 pong_init_arena() {
+  # randomization vals
   local randonum
   local randonum2
   local randonum3
+  # populate grid with arena tiles
   for ((y_total=1; y_total<=arena_y; y_total++)); do
     for ((x_total=1; x_total<=arena_x; x_total++)); do
       pong[$x_total,$y_total]="$arena_tile"
     done
   done
+  # add paddle + ball to arena
   pong[$arena_x_mid,$arena_y_mid]="$ball_tile"
   pong[$paddleone_start_x,$arena_y_mid]="$l_pad_tile"
   pong[$paddletwo_start_x,$arena_y_mid]="$r_pad_tile"
+  # set initial paddle x y pos
+  ((left_pad_x=paddleone_start_x))
+  ((left_pad_y=arena_y_mid))
+  ((right_pad_x=paddletwo_start_x))
+  ((right_pad_y=arena_y_mid))
+  # set initial ball x y pos
   ((ball_x_pos=arena_x_mid))
   ((ball_y_pos=arena_y_mid))
+  # --- randomization of ball start pos ---
   # generate random num between 1-9
   ((randonum=((RANDOM%9)+1)))
   # if 1 2 or 3, shift start pos north
@@ -128,12 +138,9 @@ pong_init_arena() {
     }
     pong[$ball_x_pos,$ball_y_pos]="$ball_tile"
   }
-  ((left_pad_x=paddleone_start_x))
-  ((left_pad_y=arena_y_mid))
-  ((right_pad_x=paddletwo_start_x))
-  ((right_pad_y=arena_y_mid))
 }
 
+# prints contents of $pong as grid
 print_pong_arr() {
   for ((y_count=1; y_count<=y_total; y_count++)); do
     for ((x_count=1; x_count<=x_total; x_count++)); do
@@ -143,25 +150,40 @@ print_pong_arr() {
   done
 }
 
+# initial arena draw function
 pong_draw() {
+  # attain pong grid via print_pong_arr
   pong_buffer=$(print_pong_arr)
+  # set colour based on $arena_bg (0-7)
   print "\033[4"$arena_bg"m"
+  # return cursor to upper-left corner
   print "\033[H"
+  # print contents of pong buffer (arena grid)
   print "$pong_buffer"
+  # reset text formatting (clear bg colour)
   print "\033[0m"
+  # rehide cursor since above command shows it
   print "\033[?25l"
+  # scoreboard print:
+  # ansi code '\033[F' moves cursor to beginning of
+  # line since invisible ansi codes still have width
   print "\033[F"$(ctext cyan)"p1 score"$(ctext white)": "$pong_score_left""$score_space""$(ctext red)"p2 score"$(ctext white)": "$pong_score_right""$(ctext reset)""
   print ''
 }
 
+# establish initial ball direction
 pong_rand_dir() {
+  # indexed array containing all directions
   pong_dirs=('ne'
              'e'
              'se'
              'sw'
              'w'
              'nw')
+  # generate random num between 1-7
   ((pong_rand_val=((RANDOM%6)+1)))
+  # set ball direction to pong_dirs indice
+  # corresponding to random num
   pong_ball_direction=$pong_dirs[$pong_rand_val]
 }
 
