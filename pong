@@ -267,15 +267,15 @@ pong_collision_detection() {
              }
              ((ball_was_east=0))
            } ;;
-      (w) { ([ -z "$pong_w_last" ] || \
+       (w) { ([ -z "$pong_w_last" ] || \
              ((pong_w_last==0))) && {
-              ((pong_w_last=1))
-              pong_ball_direction="ne"
-            } || {
-              ((pong_w_last=0))
-              pong_ball_direction="se"
-            }
-          } ;;
+               ((pong_w_last=1))
+               pong_ball_direction="ne"
+             } || {
+               ((pong_w_last=0))
+               pong_ball_direction="se"
+             }
+           } ;;
       (sw) { ((pong_is_paddle==1)) && ((ball_was_east!=1)) && {
                ((ball_rand_val>=7)) && {
                  pong_ball_direction="e"
@@ -298,15 +298,15 @@ pong_collision_detection() {
              }
              ((ball_was_west=0))
            } ;;
-      (e) { ([ -z "$pong_e_last" ] || \
+       (e) { ([ -z "$pong_e_last" ] || \
              ((pong_e_last==0))) && {
-              ((pong_e_last=1))
-              pong_ball_direction="nw"
-            } || {
-              ((pong_e_last=0))
-              pong_ball_direction="sw"
-            }
-          } ;;
+               ((pong_e_last=1))
+               pong_ball_direction="nw"
+             } || {
+               ((pong_e_last=0))
+               pong_ball_direction="sw"
+             }
+           } ;;
       (se) { ((pong_is_paddle==1)) && ((ball_was_west!=1)) && {
                ((ball_rand_val>=7)) && {
                  pong_ball_direction="w"
